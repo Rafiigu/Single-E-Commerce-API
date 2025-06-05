@@ -13,3 +13,108 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model Admin {
+  id           String        @id @default(uuid())
+  name         String
+  email        String
+  password     String
+  role         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  topUps       Top_Up[]
+}
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String
+  password     String
+  status       String
+  profile      String
+  balance      Int
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  Wishlists    Wishlist[]
+  topUp        Top_Up[]
+  transactions Transaction[]
+}
+
+model Category {
+  id           String         @id @default(uuid())
+  name         String
+  status       String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Product {
+  id                 String         @id @default(uuid())
+  name               String
+  status             String
+  price              String
+  stock              Int
+  Details            String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  stockMutations     Stock_Mutation[]
+  wishlists          Wishlist[]
+  transactionDetails Transaction_Details[]
+}
+
+model Stock_Mutation {
+  id           String         @id @default(uuid())
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id])
+  currentStock Int
+  stock        Int
+  type         String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Wishlist {
+  id           String         @id @default(uuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model Top_Up {
+  id          String          @id @default(uuid())
+  nominal     Int
+  adminId     String
+  admin       Admin           @relation(fields: [adminId], references: [id])
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  proofOfTransferFileName     String
+  status      String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id])
+  total       Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  transactionDetails Transaction_Details[]
+}
+
+model Transaction_Details {
+  id             String          @id @default(uuid())
+  transactionId  String
+  transaction    Transaction     @relation(fields: [transactionId], references: [id])
+  productId      String
+  product        Product         @relation(fields: [productId], references: [id])
+  purchasedPrice Int
+  Quantity       Int
+  Subtotal       Int
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
