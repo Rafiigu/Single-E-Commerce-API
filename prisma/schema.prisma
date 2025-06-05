@@ -35,26 +35,29 @@ model User {
   balance      Int
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  Wishlists    Wishlist[]
+  wishlists    Wishlist[]
   topUp        TopUp[]
   transactions Transaction[]
 }
 
 model Category {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   status    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
 }
 
 model Product {
   id                 String               @id @default(uuid())
+  categoryId         String
+  category           Category             @relation(fields: [categoryId], references: [id])
   name               String
   status             String
   price              String
   stock              Int
-  Details            String
+  description        String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   stockMutations     StockMutation[]
@@ -67,7 +70,7 @@ model StockMutation {
   productId    String
   product      Product  @relation(fields: [productId], references: [id])
   currentStock Int
-  stock        Int
+  quantity     Int
   type         String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -86,8 +89,8 @@ model Wishlist {
 model TopUp {
   id                      String   @id @default(uuid())
   nominal                 Int
-  adminId                 String
-  admin                   Admin    @relation(fields: [adminId], references: [id])
+  adminId                 String?
+  admin                   Admin?   @relation(fields: [adminId], references: [id])
   userId                  String
   user                    User     @relation(fields: [userId], references: [id])
   proofOfTransferFileName String
@@ -101,6 +104,7 @@ model Transaction {
   userId             String
   user               User                 @relation(fields: [userId], references: [id])
   total              Int
+  status             String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   transactionDetails TransactionDetails[]
@@ -113,8 +117,8 @@ model TransactionDetails {
   productId      String
   product        Product     @relation(fields: [productId], references: [id])
   purchasedPrice Int
-  Quantity       Int
-  Subtotal       Int
+  quantity       Int
+  subtotal       Int
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 }
