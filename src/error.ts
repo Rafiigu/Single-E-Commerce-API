@@ -31,9 +31,9 @@ class CustomError extends Error {
 
 class ErrorWithMessage extends CustomError {
   message: string;
-  native: Error;
+  native?: Error;
 
-  constructor(status: StatusCodes, message: string, nativeError: Error) {
+  constructor(status: StatusCodes, message: string, nativeError?: Error) {
     super(status);
     this.message = message;
     this.native = nativeError; // optional
@@ -70,7 +70,7 @@ class FieldError extends CustomError {
 export const createErrorWithMessage = (
   status: StatusCodes,
   message: string,
-  nativeError: Error
+  nativeError?: Error
 ) => {
   return new ErrorWithMessage(status, message, nativeError);
 };
@@ -92,9 +92,9 @@ export const createInternalError = (nativeError: Error) => {
 
 export const errorHandlerMiddleware = (
   error: Error,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   console.error(error);
 

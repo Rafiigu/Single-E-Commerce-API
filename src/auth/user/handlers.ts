@@ -1,5 +1,5 @@
-import { withValidation } from "../validation";
-import { HandlerWithDeps } from "../types";
+import { withValidation } from "../../validation";
+import { HandlerWithDeps } from "../../types";
 
 export const loginHandler: HandlerWithDeps = (prisma) =>
   withValidation({}, (req, res, next) => {
@@ -16,3 +16,8 @@ export const registerHandler: HandlerWithDeps = (prisma) =>
       next(error);
     }
   });
+
+export const getLoggedInUser: HandlerWithDeps =
+  (prisma) => (req, res, next) => {
+    // req.user
+  };
