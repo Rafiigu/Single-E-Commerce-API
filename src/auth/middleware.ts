@@ -3,6 +3,7 @@ import { createErrorWithMessage } from "../error";
 import { StatusCodes } from "http-status-codes";
 import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { Payload, Role } from "./types";
+import { ENV } from "./env";
 
 export const authMiddleware = (roles: Role[]): Handler => {
   return (req, res, next) => {
@@ -25,10 +26,7 @@ export const authMiddleware = (roles: Role[]): Handler => {
       }
 
       const authToken = bearerToken[1];
-      const payload = jwt.verify(
-        authToken,
-        process.env.JWT_SECRET || ""
-      ) as Payload; // if verify fails, it will throws error with JSONWebTokenError
+      const payload = jwt.verify(authToken, ENV.JWT_SECRET || "") as Payload; // if verify fails, it will throws error with JSONWebTokenError
       /*
         payload = {
           id: 
