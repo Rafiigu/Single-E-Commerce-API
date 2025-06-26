@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 import { Payload } from "../types";
 import { StatusCodes } from "http-status-codes";
 
-export const loginHandler: HandlerWithDeps = (prisma) =>
+export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {
     try {
       const data = req.body;
@@ -52,7 +52,7 @@ export const loginHandler: HandlerWithDeps = (prisma) =>
     }
   });
 
-export const registerHandler: HandlerWithDeps = (prisma) =>
+export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
   withValidation({ bodySchema: registerBodySchema }, async (req, res, next) => {
     try {
       const data = req.body;
@@ -93,7 +93,8 @@ export const registerHandler: HandlerWithDeps = (prisma) =>
   });
 
 export const getLoggedInUser: HandlerWithDeps =
-  (prisma) => async (req, res, next) => {
+  ({ prisma }) =>
+  async (req, res, next) => {
     try {
       // req.user
       const user = await prisma.user.findFirst({

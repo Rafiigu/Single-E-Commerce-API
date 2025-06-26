@@ -4,6 +4,7 @@ import { setupAuthRoutes as setupAdminAuthRoutes } from "./auth/admin/routes";
 import express from "express";
 import cors from "cors";
 import { errorHandlerMiddleware } from "./error";
+import { createMailClient } from "./mailer";
 
 const PORT = 5000;
 const app = express();
@@ -11,11 +12,12 @@ app.use(express.json());
 app.use(cors());
 
 const prisma = new PrismaClient();
+const mailer = createMailClient();
 
 const router = express.Router();
 
-setupUserAuthRoutes(router, prisma);
-setupAdminAuthRoutes(router, prisma);
+setupUserAuthRoutes(router, { prisma, mailer });
+setupAdminAuthRoutes(router, { prisma });
 
 app.use("/api", router);
 
