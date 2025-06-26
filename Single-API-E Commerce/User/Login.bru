@@ -6,8 +6,15 @@ meta {
 
 post {
   url: http://localhost:5000/api/auth/user/login
-  body: none
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "email": "timothy@gmail.com",
+    "password": "timothy123"
+  }
 }
 
 script:post-response {
