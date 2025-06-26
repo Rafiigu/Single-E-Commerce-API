@@ -9,3 +9,10 @@ post {
   body: none
   auth: none
 }
+
+script:post-response {
+  if (res.status === 200) {
+    const authToken = res.getBody().data.authToken
+    bru.setVar("AUTH_TOKEN", authToken)
+  }
+}

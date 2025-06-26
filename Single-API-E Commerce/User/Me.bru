@@ -10,6 +10,10 @@ get {
   auth: bearer
 }
 
+headers {
+  Authorization: Bearer {{AUTH_TOKEN}}
+}
+
 auth:bearer {
   token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjkyMGM4N2FkLTA4OTgtNGYwMS1iZjdmLWNmNTNlMjkzZjY3MiIsInJvbGUiOiJ1c2VyIiwiZW1haWwiOiJ0aW1vdGh5cy50b2JpbmcyM0BnbWFpbC5jb20iLCJpYXQiOjE3NTA3Njk5OTYsImV4cCI6MTc1MDg1NjM5Nn0.zy_uqeIUUQaAwdA8lkHUY3x_oWP9IsXSRQrsvo3fGeU
 }
