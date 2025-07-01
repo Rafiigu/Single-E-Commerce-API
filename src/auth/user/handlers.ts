@@ -1,3 +1,4 @@
+import { UserVerificationToken } from "./../../../generated/prisma/index.d";
 import { withValidation } from "../../validation";
 import { HandlerWithDeps } from "../../types";
 import { loginBodySchema, registerBodySchema } from "./validation";
@@ -7,6 +8,8 @@ import { ENV } from "../env";
 import bcrypt from "bcryptjs";
 import { Payload } from "../types";
 import { StatusCodes } from "http-status-codes";
+import { send } from "node:process";
+import { nanoid } from "nanoid";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {
@@ -79,6 +82,35 @@ export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
           status: "not-verified",
           balance: 0,
         },
+      });
+
+      const UserVerificationToken = nanoid();
+
+      const isVerificationTokenExist =
+        await prisma.userVerificationToken.findFirst({
+          where: { userId: newUser.id, purpose: "sign-up" },
+        });
+
+      if (!isVerificationTokenExist) {
+        await prisma.userVerificationToken.create({
+          data: {
+            token: UserVerificationToken,
+            purpose: "sign-up",
+            userId: newUser.id,
+          },
+        });
+      }
+
+      await prisma.userVerificationToken.updateMany({
+        where: { userId: newUser.id, purpose: "sign-up" },
+        data: {
+          token: UserVerificationToken,
+        },
+      });
+
+      await mailer?.send(data.email, {
+        subject: "Account Verification",
+        html: `<h2>Registration Token Value ${UserVerificationToken}</h2>`,
       });
 
       const { password, ...restNewUser } = newUser;

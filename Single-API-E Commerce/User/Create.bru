@@ -5,7 +5,15 @@ meta {
 }
 
 post {
-  url: http://localhost:5000/api/register
-  body: none
+  url: http://localhost:5000/api/auth/user/register
+  body: json
   auth: none
+}
+
+body:json {
+  {
+    "name": "Rafiigu",
+    "email": "timothyggwp10@gmail.com",
+    "password": "KingJo23?"
+  }
 }
