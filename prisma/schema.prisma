@@ -27,19 +27,19 @@ model Admin {
 }
 
 model User {
-  id                    String                  @id @default(uuid())
-  name                  String
-  email                 String
-  password              String
-  status                String
-  profile               String
-  balance               Int
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  wishlists             Wishlist[]
-  topUp                 TopUp[]
-  transactions          Transaction[]
-  UserVerificationToken UserVerificationToken[]
+  id                     String                  @id @default(uuid())
+  name                   String
+  email                  String
+  password               String
+  status                 String
+  profile                String
+  balance                Int
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  wishlists              Wishlist[]
+  topUp                  TopUp[]
+  transactions           Transaction[]
+  userVerificationTokens UserVerificationToken[]
 }
 
 model UserVerificationToken {

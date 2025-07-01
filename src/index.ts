@@ -5,8 +5,9 @@ import express from "express";
 import cors from "cors";
 import { errorHandlerMiddleware } from "./error";
 import { createMailClient } from "./mailer";
+import { ENV } from "./env";
 
-const PORT = 5000;
+const PORT = ENV.PORT;
 const app = express();
 app.use(express.json());
 app.use(cors());

@@ -1,15 +1,13 @@
-import { UserVerificationToken } from "./../../../generated/prisma/index.d";
 import { withValidation } from "../../validation";
 import { HandlerWithDeps } from "../../types";
 import { loginBodySchema, registerBodySchema } from "./validation";
 import jwt from "jsonwebtoken";
 import { createErrorWithMessage, createFieldError } from "../../error";
-import { ENV } from "../env";
 import bcrypt from "bcryptjs";
 import { Payload } from "../types";
 import { StatusCodes } from "http-status-codes";
-import { send } from "node:process";
 import { nanoid } from "nanoid";
+import { ENV } from "../../env";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {
@@ -73,44 +71,49 @@ export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
         });
       }
 
-      const newUser = await prisma.user.create({
-        data: {
-          name: data.name,
-          password: hashedPassword,
-          email: data.email,
-          profile: "",
-          status: "not-verified",
-          balance: 0,
-        },
-      });
+      const newUser = await prisma.$transaction(async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            name: data.name,
+            password: hashedPassword,
+            email: data.email,
+            profile: "",
+            status: "not-verified",
+            balance: 0,
+          },
+        });
 
-      const UserVerificationToken = nanoid();
+        const token = nanoid();
 
-      const isVerificationTokenExist =
-        await prisma.userVerificationToken.findFirst({
+        const existingToken = await tx.userVerificationToken.findFirst({
           where: { userId: newUser.id, purpose: "sign-up" },
         });
 
-      if (!isVerificationTokenExist) {
-        await prisma.userVerificationToken.create({
-          data: {
-            token: UserVerificationToken,
-            purpose: "sign-up",
-            userId: newUser.id,
-          },
+        if (!existingToken) {
+          await tx.userVerificationToken.create({
+            data: {
+              token: token,
+              purpose: "sign-up",
+              userId: newUser.id,
+            },
+          });
+        } else {
+          await tx.userVerificationToken.update({
+            where: {
+              id: existingToken.id,
+            },
+            data: {
+              token: token,
+            },
+          });
+        }
+
+        await mailer?.send(data.email, {
+          subject: "Account Verification",
+          html: `<h2>Registration Token Value ${token}</h2>`,
         });
-      }
 
-      await prisma.userVerificationToken.updateMany({
-        where: { userId: newUser.id, purpose: "sign-up" },
-        data: {
-          token: UserVerificationToken,
-        },
-      });
-
-      await mailer?.send(data.email, {
-        subject: "Account Verification",
-        html: `<h2>Registration Token Value ${UserVerificationToken}</h2>`,
+        return newUser;
       });
 
       const { password, ...restNewUser } = newUser;

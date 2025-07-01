@@ -28,7 +28,6 @@ export const withValidation = (
       handler(req, res, next);
     } catch (error) {
       if (error instanceof ZodError) {
-        console.log(error);
         const fieldError: Record<string, string> = {};
         error.errors.forEach((e) => {
           fieldError[e.path.join(".")] = e.message;

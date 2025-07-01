@@ -1,6 +1,5 @@
 import { createTransport } from "nodemailer";
-import dotenv from "dotenv";
-dotenv.config({ path: "../.env" });
+import { ENV } from "./env";
 
 export type MailData = {
   subject: string;
@@ -11,17 +10,12 @@ export type MailClient = {
   send: (recipient: string | string[], data: MailData) => Promise<void>;
 };
 
-console.log(
-  process.env.SYSTEM_EMAIL_ADDRESS,
-  process.env.SYSTEM_EMAIL_PASSWORD
-);
-
 export const createMailClient = () => {
   const transporter = createTransport({
     service: "gmail",
     auth: {
-      user: process.env.SYSTEM_EMAIL_ADDRESS,
-      pass: process.env.SYSTEM_EMAIL_PASSWORD,
+      user: ENV.SYSTEM_EMAIL_ADDRESS,
+      pass: ENV.SYSTEM_EMAIL_PASSWORD,
     },
   });
 
