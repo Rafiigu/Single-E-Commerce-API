@@ -32,6 +32,18 @@ export const loginHandler: HandlerWithDeps = ({ prisma }) =>
         });
       }
 
+      if (user.status === "not-verified") {
+        throw createFieldError(StatusCodes.BAD_REQUEST, {
+          email: "Email belum terverifikasi.",
+        });
+      }
+
+      if (user.status === "blocked") {
+        throw createFieldError(StatusCodes.BAD_REQUEST, {
+          email: "Akun terblokir.",
+        });
+      }
+
       const payload = {
         id: user.id,
         role: "user",
@@ -148,6 +160,13 @@ export const getLoggedInUser: HandlerWithDeps =
         throw createErrorWithMessage(
           StatusCodes.NOT_FOUND,
           "User tidak ditemukan!"
+        );
+      }
+
+      if (user.status !== "verified") {
+        throw createErrorWithMessage(
+          StatusCodes.NOT_FOUND,
+          "User belum terverifikasi atau terblokir!"
         );
       }
 
