@@ -89,12 +89,18 @@ export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
           where: { userId: newUser.id, purpose: "sign-up" },
         });
 
+        const now = new Date();
+        const expiredAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
         if (!existingToken) {
           await tx.userVerificationToken.create({
             data: {
               token: token,
               purpose: "sign-up",
               userId: newUser.id,
+              createdAt: now,
+              updatedAt: now,
+              expiredAt,
             },
           });
         } else {
@@ -104,6 +110,8 @@ export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
             },
             data: {
               token: token,
+              updatedAt: now,
+              expiredAt,
             },
           });
         }

@@ -43,13 +43,14 @@ model User {
 }
 
 model UserVerificationToken {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   token     String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
   purpose   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiredAt DateTime?
 }
 
 model Category {
