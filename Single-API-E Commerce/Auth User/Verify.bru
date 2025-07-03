@@ -1,0 +1,18 @@
+meta {
+  name: Verify
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:5000/api/auth/user/verify-account
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "timothyggwp10@gmail.com",
+    "token": "_uQtjiphwB2I9bYu_6kGj"
+  }
+}

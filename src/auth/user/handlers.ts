@@ -1,6 +1,13 @@
+import { MailClient } from "./../../mailer";
 import { withValidation } from "../../validation";
 import { HandlerWithDeps } from "../../types";
-import { loginBodySchema, registerBodySchema } from "./validation";
+import {
+  forgotPasswordBodySchema,
+  loginBodySchema,
+  registerBodySchema,
+  resetPasswordBodySchema,
+  verifyBodySchema,
+} from "./validation";
 import jwt from "jsonwebtoken";
 import { createErrorWithMessage, createFieldError } from "../../error";
 import bcrypt from "bcryptjs";
@@ -147,6 +154,73 @@ export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
     }
   });
 
+export const verifyHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation({ bodySchema: verifyBodySchema }, async (req, res, next) => {
+    try {
+      const data = req.body;
+
+      await prisma.$transaction(async (tx) => {
+        const user = await tx.user.findFirst({
+          where: { email: data.email },
+        });
+
+        if (!user) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            email: "Email tidak ditemukan",
+          });
+        }
+
+        if (user.status === "blocked") {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            status: "Akun terblokir",
+          });
+        }
+
+        if (user.status === "verified") {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            status: "Akun telah terverifikasi",
+          });
+        }
+
+        const userToken = await tx.userVerificationToken.findFirst({
+          where: { userId: user.id, purpose: "sign-up" },
+        });
+
+        if (!userToken) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            token: "Data Token tidak ditemukan",
+          });
+        }
+
+        if (userToken.token !== data.token) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            token: "Token tidak ditemukan",
+          });
+        }
+
+        if (userToken.expiredAt && Date.now() > userToken.expiredAt.getTime()) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            token: "Token Kadaluarsa",
+          });
+        }
+
+        await tx.user.update({
+          where: { id: user.id },
+          data: { status: "verified" },
+        });
+      });
+
+      res.json({
+        success: true,
+        data: {
+          message: "User role is verified now",
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
 export const getLoggedInUser: HandlerWithDeps =
   ({ prisma }) =>
   async (req, res, next) => {
@@ -180,3 +254,144 @@ export const getLoggedInUser: HandlerWithDeps =
       next(error);
     }
   };
+
+export const forgotPasswordHandler: HandlerWithDeps = ({ prisma, mailer }) =>
+  withValidation(
+    { bodySchema: forgotPasswordBodySchema },
+    async (req, res, next) => {
+      const { email } = req.body;
+      try {
+        let token;
+
+        await prisma.$transaction(async (tx) => {
+          const user = await tx.user.findFirst({
+            where: { email: email },
+          });
+
+          if (!user) {
+            throw createFieldError(StatusCodes.NOT_FOUND, {
+              email: "Email tidak ditemukan",
+            });
+          }
+
+          if (user.status !== "verified") {
+            throw createErrorWithMessage(
+              StatusCodes.BAD_REQUEST,
+              "Akun harus terverifikasi"
+            );
+          }
+
+          token = nanoid();
+
+          const existingToken = await tx.userVerificationToken.findFirst({
+            where: { userId: user.id, purpose: "reset-password" },
+          });
+
+          const now = new Date();
+          const expiredAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+          if (!existingToken) {
+            await tx.userVerificationToken.create({
+              data: {
+                token,
+                purpose: "reset-password",
+                userId: user.id,
+                createdAt: now,
+                updatedAt: now,
+                expiredAt,
+              },
+            });
+          } else {
+            await tx.userVerificationToken.update({
+              where: {
+                id: existingToken.id,
+              },
+              data: {
+                token,
+                updatedAt: now,
+                expiredAt,
+              },
+            });
+          }
+        });
+
+        await mailer?.send(email, {
+          subject: "Forgot Password",
+          html: `<h2>Forgot Password Token Value: ${token}</h2>`,
+        });
+
+        res.json({
+          success: true,
+          data: {
+            token,
+          },
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const resetPasswordHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    { bodySchema: resetPasswordBodySchema },
+    async (req, res, next) => {
+      const data = req.body;
+
+      await prisma.$transaction(async (tx) => {
+        const user = await tx.user.findFirst({
+          where: { email: data.email },
+        });
+
+        if (!user) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            email: "Email tidak ditemukan",
+          });
+        }
+
+        if (user.status !== "verified") {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun haruss terverifikasi"
+          );
+        }
+
+        const userToken = await tx.userVerificationToken.findFirst({
+          where: { userId: user.id, purpose: "reset-password" },
+        });
+
+        if (!userToken) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            token: "Data Token tidak ditemukan",
+          });
+        }
+
+        if (!userToken.token === data.token) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            token: "Token tidak ditemukan",
+          });
+        }
+
+        if (userToken.expiredAt && Date.now() > userToken.expiredAt.getTime()) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            token: "Token Kadaluarsa",
+          });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(data.newPassword, salt);
+
+        await tx.user.update({
+          where: { id: user.id },
+          data: { password: hashedPassword },
+        });
+      });
+
+      res.json({
+        success: true,
+        data: {
+          message: "Password updated!",
+        },
+      });
+    }
+  );
