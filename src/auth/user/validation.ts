@@ -25,7 +25,7 @@ export const loginBodySchema = z.object({
 
 export const verifyBodySchema = z.object({
   email: z.string().trim().email("Format email tidak benar."),
-  token: z.string(),
+  token: z.string().min(1, "Token harus diisi"),
 });
 
 export const forgotPasswordBodySchema = z.object({
@@ -34,7 +34,7 @@ export const forgotPasswordBodySchema = z.object({
 
 export const resetPasswordBodySchema = z.object({
   email: z.string().trim().email("Format email tidak benar."),
-  token: z.string(),
+  token: z.string().min(1, "Token harus diisi"),
   newPassword: z
     .string()
     .regex(

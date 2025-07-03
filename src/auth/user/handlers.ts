@@ -188,7 +188,7 @@ export const verifyHandler: HandlerWithDeps = ({ prisma }) =>
 
         if (!userToken) {
           throw createFieldError(StatusCodes.NOT_FOUND, {
-            token: "Data Token tidak ditemukan",
+            token: "Data token tidak ditemukan",
           });
         }
 
@@ -200,7 +200,7 @@ export const verifyHandler: HandlerWithDeps = ({ prisma }) =>
 
         if (userToken.expiredAt && Date.now() > userToken.expiredAt.getTime()) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
-            token: "Token Kadaluarsa",
+            token: "Token kadaluarsa",
           });
         }
 
@@ -213,7 +213,7 @@ export const verifyHandler: HandlerWithDeps = ({ prisma }) =>
       res.json({
         success: true,
         data: {
-          message: "User role is verified now",
+          message: "User sudah di-verifikasi",
         },
       });
     } catch (error) {
@@ -337,61 +337,67 @@ export const resetPasswordHandler: HandlerWithDeps = ({ prisma }) =>
     { bodySchema: resetPasswordBodySchema },
     async (req, res, next) => {
       const data = req.body;
+      try {
+        await prisma.$transaction(async (tx) => {
+          const user = await tx.user.findFirst({
+            where: { email: data.email },
+          });
 
-      await prisma.$transaction(async (tx) => {
-        const user = await tx.user.findFirst({
-          where: { email: data.email },
+          if (!user) {
+            throw createFieldError(StatusCodes.NOT_FOUND, {
+              email: "Email tidak ditemukan",
+            });
+          }
+
+          if (user.status !== "verified") {
+            throw createErrorWithMessage(
+              StatusCodes.NOT_FOUND,
+              "Akun harus terverifikasi"
+            );
+          }
+
+          const userToken = await tx.userVerificationToken.findFirst({
+            where: { userId: user.id, purpose: "reset-password" },
+          });
+
+          if (!userToken) {
+            throw createFieldError(StatusCodes.NOT_FOUND, {
+              token: "Data token tidak ditemukan",
+            });
+          }
+
+          if (userToken.token !== data.token) {
+            throw createFieldError(StatusCodes.NOT_FOUND, {
+              token: "Token tidak ditemukan",
+            });
+          }
+
+          if (
+            userToken.expiredAt &&
+            Date.now() > userToken.expiredAt.getTime()
+          ) {
+            throw createFieldError(StatusCodes.BAD_REQUEST, {
+              token: "Token kadaluarsa",
+            });
+          }
+
+          const salt = bcrypt.genSaltSync(10);
+          const hashedPassword = bcrypt.hashSync(data.newPassword, salt);
+
+          await tx.user.update({
+            where: { id: user.id },
+            data: { password: hashedPassword },
+          });
         });
 
-        if (!user) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            email: "Email tidak ditemukan",
-          });
-        }
-
-        if (user.status !== "verified") {
-          throw createErrorWithMessage(
-            StatusCodes.NOT_FOUND,
-            "Akun haruss terverifikasi"
-          );
-        }
-
-        const userToken = await tx.userVerificationToken.findFirst({
-          where: { userId: user.id, purpose: "reset-password" },
+        res.json({
+          success: true,
+          data: {
+            message: "Password telah di-update",
+          },
         });
-
-        if (!userToken) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            token: "Data Token tidak ditemukan",
-          });
-        }
-
-        if (!userToken.token === data.token) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            token: "Token tidak ditemukan",
-          });
-        }
-
-        if (userToken.expiredAt && Date.now() > userToken.expiredAt.getTime()) {
-          throw createFieldError(StatusCodes.BAD_REQUEST, {
-            token: "Token Kadaluarsa",
-          });
-        }
-
-        const salt = bcrypt.genSaltSync(10);
-        const hashedPassword = bcrypt.hashSync(data.newPassword, salt);
-
-        await tx.user.update({
-          where: { id: user.id },
-          data: { password: hashedPassword },
-        });
-      });
-
-      res.json({
-        success: true,
-        data: {
-          message: "Password updated!",
-        },
-      });
+      } catch (error) {
+        next(error);
+      }
     }
   );
