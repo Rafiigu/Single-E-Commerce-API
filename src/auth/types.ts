@@ -1,4 +1,4 @@
-export type Role = "admin" | "superadmin" | "user";
+export type Role = "admin" | "superadmin" | "staff" | "user";
 
 export type Payload = {
   id: string;
