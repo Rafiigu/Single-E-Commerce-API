@@ -224,9 +224,9 @@ export const getLoggedInUser: HandlerWithDeps =
   ({ prisma }) =>
   async (req, res, next) => {
     try {
-      // req.user
+      // req.account
       const user = await prisma.user.findFirst({
-        where: { id: req.user.id },
+        where: { id: req.account.id },
       });
 
       if (!user) {
@@ -403,7 +403,7 @@ export const updatePasswordHandler: HandlerWithDeps = ({ prisma }) =>
       const data = req.body;
       try {
         const user = await prisma.user.findFirst({
-          where: { id: req.user.id },
+          where: { id: req.account.id },
         });
 
         if (!user) {

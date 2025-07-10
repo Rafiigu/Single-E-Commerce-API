@@ -5,7 +5,7 @@ import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { Payload, Role } from "./types";
 import { ENV } from "../env";
 
-export const authMiddleware = (roles: Role[]): Handler => {
+export const authMiddleware = (allowedRoles: Role[]): Handler => {
   return (req, res, next) => {
     try {
       const authorization = req.headers["authorization"];
@@ -34,11 +34,14 @@ export const authMiddleware = (roles: Role[]): Handler => {
           email:
         }
       */
-      if (!roles.includes(payload.role)) {
+      if (
+        payload.role !== "superadmin" &&
+        !allowedRoles.includes(payload.role)
+      ) {
         throw createErrorWithMessage(StatusCodes.UNAUTHORIZED, "Unauthorized");
       }
 
-      req.user = payload;
+      req.account = payload;
       next();
     } catch (error) {
       if (error instanceof JsonWebTokenError) {
