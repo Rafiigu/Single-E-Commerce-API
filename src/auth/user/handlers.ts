@@ -6,6 +6,7 @@ import {
   loginBodySchema,
   registerBodySchema,
   resetPasswordBodySchema,
+  updatePasswordBodySchema,
   verifyBodySchema,
 } from "./validation";
 import jwt from "jsonwebtoken";
@@ -15,6 +16,7 @@ import { Payload } from "../types";
 import { StatusCodes } from "http-status-codes";
 import { nanoid } from "nanoid";
 import { ENV } from "../../env";
+import { STATUS_CODES } from "http";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {
@@ -372,6 +374,50 @@ export const resetPasswordHandler: HandlerWithDeps = ({ prisma }) =>
         if (userToken.expiredAt && Date.now() > userToken.expiredAt.getTime()) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
             token: "Token kadaluarsa",
+          });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(data.newPassword, salt);
+
+        const updatedUser = await prisma.user.update({
+          where: { id: user.id },
+          data: { password: hashedPassword },
+        });
+
+        const { password, ...restUpdatedUser } = updatedUser;
+
+        res.json({
+          success: true,
+          data: restUpdatedUser,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const updatePasswordHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    { bodySchema: updatePasswordBodySchema },
+    async (req, res, next) => {
+      const data = req.body;
+      try {
+        const user = await prisma.user.findFirst({
+          where: { email: data.email },
+        });
+
+        if (!user) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            email: "Kredensial salah.",
+            password: "Kredensial salah.",
+          });
+        }
+
+        if (!bcrypt.compareSync(data.currentPassword, user.password)) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            email: "Kredensial salah.",
+            password: "Kredensial salah.",
           });
         }
 

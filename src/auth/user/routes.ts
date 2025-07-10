@@ -6,6 +6,7 @@ import {
   verifyHandler,
   forgotPasswordHandler,
   resetPasswordHandler,
+  updatePasswordHandler,
 } from "./handlers";
 import { SetupRoutes } from "../../types";
 import { authMiddleware } from "../middleware";
@@ -19,6 +20,11 @@ export const setupAuthRoutes: SetupRoutes = (app, { prisma, mailer }) => {
   router.get("/me", authMiddleware(["user"]), getLoggedInUser({ prisma }));
   router.post("/forgot-password", forgotPasswordHandler({ prisma, mailer }));
   router.post("/reset-password", resetPasswordHandler({ prisma }));
+  router.post(
+    "/update-password",
+    authMiddleware(["user"]),
+    updatePasswordHandler({ prisma })
+  );
 
   app.use("/auth/user", router);
 };

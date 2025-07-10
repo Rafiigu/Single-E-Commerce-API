@@ -1,19 +1,19 @@
 meta {
   name: Login
   type: http
-  seq: 2
+  seq: 1
 }
 
 post {
-  url: http://localhost:5000/api/auth/user/login
+  url: http://localhost:5000/api/auth/admin/login
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {
   {
-    "email": "timothyggwp10@gmail.com",
-    "password": "KingJo23?"
+    "email": "timothys.tobing23@gmail.com",
+    "password": "KingTes23?"
   }
 }
 
