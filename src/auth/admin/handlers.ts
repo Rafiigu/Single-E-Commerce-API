@@ -1,13 +1,12 @@
 import { withValidation } from "../../validation";
 import { HandlerWithDeps } from "../../types";
-import { loginBodySchema } from "../user/validation";
 import { createErrorWithMessage, createFieldError } from "../../error";
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
-import { STATUS_CODES } from "http";
 import { Payload } from "../types";
 import Jwt from "jsonwebtoken";
 import { ENV } from "../../env";
+import { loginBodySchema } from "./validation";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {

@@ -15,12 +15,7 @@ export const registerBodySchema = z.object({
 
 export const loginBodySchema = z.object({
   email: z.string().trim().email("Format email tidak benar."),
-  password: z
-    .string()
-    .regex(
-      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
-      "Password harus memiliki minimum 8 karakter, minimal satu huruf kapital, minimal satu huruf kecil, minimal satu angka, dan satu karakter khusus"
-    ),
+  password: z.string(),
 });
 
 export const verifyBodySchema = z.object({
@@ -44,7 +39,6 @@ export const resetPasswordBodySchema = z.object({
 });
 
 export const updatePasswordBodySchema = z.object({
-  email: z.string().trim().email("Format email tidak benar."),
   currentPassword: z
     .string()
     .regex(

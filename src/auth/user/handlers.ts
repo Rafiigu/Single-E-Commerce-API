@@ -16,7 +16,6 @@ import { Payload } from "../types";
 import { StatusCodes } from "http-status-codes";
 import { nanoid } from "nanoid";
 import { ENV } from "../../env";
-import { STATUS_CODES } from "http";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {
@@ -404,20 +403,19 @@ export const updatePasswordHandler: HandlerWithDeps = ({ prisma }) =>
       const data = req.body;
       try {
         const user = await prisma.user.findFirst({
-          where: { email: data.email },
+          where: { id: req.user.id },
         });
 
         if (!user) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            email: "Kredensial salah.",
-            password: "Kredensial salah.",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun tidak ditemukan."
+          );
         }
 
         if (!bcrypt.compareSync(data.currentPassword, user.password)) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
-            email: "Kredensial salah.",
-            password: "Kredensial salah.",
+            currentPassword: "Password lama salah.",
           });
         }
 
