@@ -1,0 +1,19 @@
+meta {
+  name: Me
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:5000/api/auth/admin/me
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{AUTH_TOKEN}}
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwMjY5NGY3LTU3OWQtNGQ1YS05Njg1LTRmZDljZTE4ZjUxYSIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoidGltb3RoeXMudG9iaW5nMjNAZ21haWwuY29tIiwiaWF0IjoxNzUyMjQ4MDYwLCJleHAiOjE3NTIzMzQ0NjB9.Wtyi-mIyIMUQlg9iXYJBTZCzbrBhivf6xkDiXcTYnvg
+}

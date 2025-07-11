@@ -32,7 +32,7 @@ export const loginHandler: HandlerWithDeps = ({ prisma }) =>
 
       const payload = {
         id: admin.id,
-        role: "admin",
+        role: admin.role,
         email: admin.email,
       } as Payload;
 
@@ -50,3 +50,36 @@ export const loginHandler: HandlerWithDeps = ({ prisma }) =>
       next(error);
     }
   });
+
+export const getLoggedInAdmin: HandlerWithDeps =
+  ({ prisma }) =>
+  async (req, res, next) => {
+    try {
+      const admin = await prisma.admin.findFirst({
+        where: { id: req.account.id },
+      });
+
+      if (!admin) {
+        throw createErrorWithMessage(
+          StatusCodes.NOT_FOUND,
+          "Akun tidak ditemukan!"
+        );
+      }
+
+      if (admin?.status !== "active") {
+        createErrorWithMessage(
+          StatusCodes.BAD_REQUEST,
+          "Akun sudah tidak aktif!"
+        );
+      }
+
+      const { password, ...restAdmin } = admin;
+
+      res.json({
+        success: true,
+        data: restAdmin,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
