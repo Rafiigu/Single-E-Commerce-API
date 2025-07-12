@@ -4,54 +4,60 @@ import { createFieldError } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import {
-  createBodySchema,
-  updateBodySchema,
-  updateParamsSchema,
+  createAdminBodySchema,
+  updateAdminBodySchema,
+  updateAdminParamsSchema,
 } from "./validations";
 import bcrypt from "bcryptjs";
 
-export const createHandler: HandlerWithDeps = ({ prisma }) =>
-  withValidation({ bodySchema: createBodySchema }, async (req, res, next) => {
-    const data = req.body;
-    try {
-      const existingEmail = await prisma.admin.findFirst({
-        where: { email: data.email },
-      });
-
-      if (existingEmail) {
-        throw createFieldError(StatusCodes.BAD_REQUEST, {
-          email: "Email sudah ada!",
-        });
-      }
-
-      const salt = bcrypt.genSaltSync(10);
-      const hashedPassword = bcrypt.hashSync(data.email, salt);
-
-      const newAccount = await prisma.admin.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          password: hashedPassword,
-          role: data.role,
-          status: "active",
-          isPasswordChanged: false,
-        },
-      });
-
-      const { password, ...restNewAccount } = newAccount;
-
-      res.json({
-        success: true,
-        data: restNewAccount,
-      });
-    } catch (error) {
-      next(error);
-    }
-  });
-
-export const updateHandler: HandlerWithDeps = ({ prisma }) =>
+export const createAdminHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
-    { paramsSchema: updateParamsSchema, bodySchema: updateBodySchema },
+    { bodySchema: createAdminBodySchema },
+    async (req, res, next) => {
+      const data = req.body;
+      try {
+        const existingEmail = await prisma.admin.findFirst({
+          where: { email: data.email },
+        });
+
+        if (existingEmail) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            email: "Email sudah ada!",
+          });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(data.email, salt);
+
+        const newAccount = await prisma.admin.create({
+          data: {
+            name: data.name,
+            email: data.email,
+            password: hashedPassword,
+            role: data.role,
+            status: "active",
+            isPasswordChanged: false,
+          },
+        });
+
+        const { password, ...restNewAccount } = newAccount;
+
+        res.json({
+          success: true,
+          data: restNewAccount,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const updateAdminHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      paramsSchema: updateAdminParamsSchema,
+      bodySchema: updateAdminBodySchema,
+    },
     async (req, res, next) => {
       const id = req.params.id;
       const data = req.body;

@@ -5,13 +5,9 @@ meta {
 }
 
 put {
-  url: http://localhost:5000/api/admin/:1234
-  body: none
+  url: http://localhost:5000/api/admin/14a47c5c-3ec1-4723-9e8a-f9dd3f3437b3
+  body: json
   auth: bearer
-}
-
-params:path {
-  1234: 
 }
 
 headers {
@@ -20,4 +16,12 @@ headers {
 
 auth:bearer {
   token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwMjY5NGY3LTU3OWQtNGQ1YS05Njg1LTRmZDljZTE4ZjUxYSIsInJvbGUiOiJzdXBlcmFkbWluIiwiZW1haWwiOiJ0aW1vdGh5cy50b2JpbmcyM0BnbWFpbC5jb20iLCJpYXQiOjE3NTIyNTIzMDcsImV4cCI6MTc1MjMzODcwN30.vL5UpyuBQrfjz7ei002JBNYdRIj31UOPCxwoX9bGx3U
+}
+
+body:json {
+  {
+    "email": "timothyggwp10@gmail.com",
+    "role": "staff",
+    "name": "Timothy"
+  }
 }
