@@ -1,0 +1,23 @@
+meta {
+  name: Update
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:5000/api/admin/:1234
+  body: none
+  auth: bearer
+}
+
+params:path {
+  1234: 
+}
+
+headers {
+  Authorization: Bearer {{AUTH_TOKEN}}
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjQwMjY5NGY3LTU3OWQtNGQ1YS05Njg1LTRmZDljZTE4ZjUxYSIsInJvbGUiOiJzdXBlcmFkbWluIiwiZW1haWwiOiJ0aW1vdGh5cy50b2JpbmcyM0BnbWFpbC5jb20iLCJpYXQiOjE3NTIyNTIzMDcsImV4cCI6MTc1MjMzODcwN30.vL5UpyuBQrfjz7ei002JBNYdRIj31UOPCxwoX9bGx3U
+}

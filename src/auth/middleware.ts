@@ -34,6 +34,7 @@ export const authMiddleware = (allowedRoles: Role[]): Handler => {
           email:
         }
       */
+
       if (
         payload.role !== "superadmin" &&
         !allowedRoles.includes(payload.role)

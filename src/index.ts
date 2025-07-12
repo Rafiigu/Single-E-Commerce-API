@@ -6,6 +6,7 @@ import cors from "cors";
 import { errorHandlerMiddleware } from "./error";
 import { createMailClient } from "./mailer";
 import { ENV } from "./env";
+import { setupAdminRoutes } from "./admin/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -19,6 +20,7 @@ const router = express.Router();
 
 setupUserAuthRoutes(router, { prisma, mailer });
 setupAdminAuthRoutes(router, { prisma });
+setupAdminRoutes(router, { prisma });
 
 app.use("/api", router);
 
