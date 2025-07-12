@@ -3,16 +3,20 @@ import { StatusCodes } from "http-status-codes";
 import { createFieldError } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
-import {
-  createAdminBodySchema,
-  updateAdminBodySchema,
-  updateAdminParamsSchema,
-} from "./validations";
+import { mutateAdminBodySchema, idAdminParamsSchema } from "./validations";
 import bcrypt from "bcryptjs";
+
+export const getAdminHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      paramsSchema: idAdminParamsSchema,
+    },
+    async (req, res, next) => {}
+  );
 
 export const createAdminHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
-    { bodySchema: createAdminBodySchema },
+    { bodySchema: mutateAdminBodySchema },
     async (req, res, next) => {
       const data = req.body;
       try {
@@ -55,8 +59,8 @@ export const createAdminHandler: HandlerWithDeps = ({ prisma }) =>
 export const updateAdminHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
     {
-      paramsSchema: updateAdminParamsSchema,
-      bodySchema: updateAdminBodySchema,
+      paramsSchema: idAdminParamsSchema,
+      bodySchema: mutateAdminBodySchema,
     },
     async (req, res, next) => {
       const id = req.params.id;
@@ -65,8 +69,6 @@ export const updateAdminHandler: HandlerWithDeps = ({ prisma }) =>
         const account = await prisma.admin.findFirst({
           where: { id: id },
         });
-
-        //Mungkin ga perlu bikin const account? Langsung aja cari berdasarkan email, lalu compare id dari akun email terkait dengan id yang di input field?
 
         if (!account) {
           throw createFieldError(StatusCodes.NOT_FOUND, {
@@ -103,4 +105,20 @@ export const updateAdminHandler: HandlerWithDeps = ({ prisma }) =>
         next(error);
       }
     }
+  );
+
+export const activateAdminHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      paramsSchema: idAdminParamsSchema,
+    },
+    async (req, res, next) => {}
+  );
+
+export const deactivateAdminHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      paramsSchema: idAdminParamsSchema,
+    },
+    async (req, res, next) => {}
   );
