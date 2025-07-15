@@ -1,0 +1,19 @@
+meta {
+  name: Activate Category
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:5000/api/category/:id/activate
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}

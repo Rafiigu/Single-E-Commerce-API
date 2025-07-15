@@ -7,6 +7,7 @@ import { errorHandlerMiddleware } from "./error";
 import { createMailClient } from "./mailer";
 import { ENV } from "./env";
 import { setupAdminRoutes } from "./admin/routes";
+import { setUpCategoryRoutes } from "./category/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -21,6 +22,7 @@ const router = express.Router();
 setupUserAuthRoutes(router, { prisma, mailer });
 setupAdminAuthRoutes(router, { prisma });
 setupAdminRoutes(router, { prisma });
+setUpCategoryRoutes(router, { prisma });
 
 app.use("/api", router);
 

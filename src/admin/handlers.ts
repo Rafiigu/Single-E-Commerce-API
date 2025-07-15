@@ -1,6 +1,6 @@
 import { Role } from "./../auth/types";
 import { StatusCodes } from "http-status-codes";
-import { createFieldError } from "../error";
+import { createErrorWithMessage, createFieldError } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import { mutateAdminBodySchema, idAdminParamsSchema } from "./validations";
@@ -11,8 +11,50 @@ export const getAdminHandler: HandlerWithDeps = ({ prisma }) =>
     {
       paramsSchema: idAdminParamsSchema,
     },
-    async (req, res, next) => {}
+    async (req, res, next) => {
+      try {
+        const admin = await prisma.admin.findFirst({
+          where: { id: req.params.id },
+          omit: {
+            password: true,
+          },
+        });
+
+        if (!admin) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun tidak ditemukan."
+          );
+        }
+
+        res.json({
+          success: true,
+          data: admin,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
   );
+
+export const listAdminsHandler: HandlerWithDeps =
+  ({ prisma }) =>
+  async (req, res, next) => {
+    try {
+      const admins = await prisma.admin.findMany({
+        omit: {
+          password: true,
+        },
+      });
+
+      res.json({
+        success: true,
+        data: admins,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 
 export const createAdminHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -71,9 +113,10 @@ export const updateAdminHandler: HandlerWithDeps = ({ prisma }) =>
         });
 
         if (!account) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            account: "Akun tidak ditemukan.",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun tidak ditemukan."
+          );
         }
 
         const existingEmail = await prisma.admin.findFirst({
@@ -112,7 +155,32 @@ export const activateAdminHandler: HandlerWithDeps = ({ prisma }) =>
     {
       paramsSchema: idAdminParamsSchema,
     },
-    async (req, res, next) => {}
+    async (req, res, next) => {
+      const id = req.params.id;
+      try {
+        const admin = await prisma.admin.update({
+          where: { id: id },
+          omit: { password: true },
+          data: {
+            status: "active",
+          },
+        });
+
+        if (!admin) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun tidak ditemukan."
+          );
+        }
+
+        res.json({
+          success: true,
+          data: admin,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
   );
 
 export const deactivateAdminHandler: HandlerWithDeps = ({ prisma }) =>
@@ -120,5 +188,30 @@ export const deactivateAdminHandler: HandlerWithDeps = ({ prisma }) =>
     {
       paramsSchema: idAdminParamsSchema,
     },
-    async (req, res, next) => {}
+    async (req, res, next) => {
+      const id = req.params.id;
+      try {
+        const admin = await prisma.admin.update({
+          where: { id: id },
+          omit: { password: true },
+          data: {
+            status: "inactive",
+          },
+        });
+
+        if (!admin) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun tidak ditemukan."
+          );
+        }
+
+        res.json({
+          success: true,
+          data: admin,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
   );

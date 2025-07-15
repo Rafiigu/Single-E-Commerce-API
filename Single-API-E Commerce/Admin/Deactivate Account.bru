@@ -1,0 +1,15 @@
+meta {
+  name: Deactivate Account
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:5000/api/admin/43787ef8-30f1-4052-b3f6-65ea9da6dc24/deactivate
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Deactivate Category
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:5000/api/category/a733c904-ac36-48ff-9c9d-ba8253119d75/deactivate
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
