@@ -20,7 +20,7 @@ export const getCategoryHandler: HandlerWithDeps = ({ prisma }) =>
         if (!category) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Kategory tidak ditemukan."
+            "Kategori tidak ditemukan."
           );
         }
 
@@ -107,7 +107,7 @@ export const updateCategoryHandler: HandlerWithDeps = ({ prisma }) =>
           where: { name: data.name },
         });
 
-        if (category) {
+        if (category && category.id !== id) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
             nama: "Nama kategori tidak dapat dipakai.",
           });
