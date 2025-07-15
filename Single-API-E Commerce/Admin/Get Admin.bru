@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/api/admin/1c24b97d-719b-4559-8468-57aa9f5f750b
+  url: http://localhost:5000/api/admin/:id
   body: none
   auth: bearer
+}
+
+params:path {
+  id: 3dac2d68-7d69-4a3d-a848-0399144205c8
 }
 
 auth:bearer {

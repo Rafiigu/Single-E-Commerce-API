@@ -5,9 +5,13 @@ meta {
 }
 
 put {
-  url: http://localhost:5000/api/admin/43787ef8-30f1-4052-b3f6-65ea9da6dc
+  url: http://localhost:5000/api/admin/:id
   body: json
   auth: bearer
+}
+
+params:path {
+  id: 3dac2d68-7d69-4a3d-a848-0399144205c8
 }
 
 auth:bearer {

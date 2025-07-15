@@ -158,12 +158,8 @@ export const activateAdminHandler: HandlerWithDeps = ({ prisma }) =>
     async (req, res, next) => {
       const id = req.params.id;
       try {
-        const admin = await prisma.admin.update({
+        const admin = await prisma.admin.findFirst({
           where: { id: id },
-          omit: { password: true },
-          data: {
-            status: "active",
-          },
         });
 
         if (!admin) {
@@ -173,9 +169,17 @@ export const activateAdminHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
+        const updatedAdmin = await prisma.admin.update({
+          where: { id: id },
+          omit: { password: true },
+          data: {
+            status: "active",
+          },
+        });
+
         res.json({
           success: true,
-          data: admin,
+          data: updatedAdmin,
         });
       } catch (error) {
         next(error);
@@ -191,12 +195,8 @@ export const deactivateAdminHandler: HandlerWithDeps = ({ prisma }) =>
     async (req, res, next) => {
       const id = req.params.id;
       try {
-        const admin = await prisma.admin.update({
+        const admin = await prisma.admin.findFirst({
           where: { id: id },
-          omit: { password: true },
-          data: {
-            status: "inactive",
-          },
         });
 
         if (!admin) {
@@ -206,9 +206,17 @@ export const deactivateAdminHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
+        const updatedAdmin = await prisma.admin.update({
+          where: { id: id },
+          omit: { password: true },
+          data: {
+            status: "inactive",
+          },
+        });
+
         res.json({
           success: true,
-          data: admin,
+          data: updatedAdmin,
         });
       } catch (error) {
         next(error);

@@ -136,11 +136,8 @@ export const activateCategoryHandler: HandlerWithDeps = ({ prisma }) =>
     async (req, res, next) => {
       const id = req.params.id;
       try {
-        const category = await prisma.category.update({
+        const category = await prisma.category.findFirst({
           where: { id: id },
-          data: {
-            status: "active",
-          },
         });
 
         if (!category) {
@@ -150,25 +147,16 @@ export const activateCategoryHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
-        const admin = await prisma.admin.findFirst({
-          where: { id: req.account.id },
+        const updatedCategory = await prisma.category.update({
+          where: { id: id },
+          data: {
+            status: "active",
+          },
         });
-
-        if (!admin) {
-          throw createErrorWithMessage(
-            StatusCodes.NOT_FOUND,
-            "Akun admin tidak ditemukan."
-          );
-        }
-
-        const { password, ...restAdmin } = admin;
 
         res.json({
           success: true,
-          data: {
-            category: category,
-            Admin: restAdmin,
-          },
+          data: updatedCategory,
         });
       } catch (error) {
         next(error);
@@ -182,11 +170,8 @@ export const deactivateCategoryHandler: HandlerWithDeps = ({ prisma }) =>
     async (req, res, next) => {
       const id = req.params.id;
       try {
-        const category = await prisma.category.update({
+        const category = await prisma.category.findFirst({
           where: { id: id },
-          data: {
-            status: "non-active",
-          },
         });
 
         if (!category) {
@@ -196,25 +181,16 @@ export const deactivateCategoryHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
-        const admin = await prisma.admin.findFirst({
-          where: { id: req.account.id },
+        const updatedCategory = await prisma.category.update({
+          where: { id: id },
+          data: {
+            status: "inactive",
+          },
         });
-
-        if (!admin) {
-          throw createErrorWithMessage(
-            StatusCodes.NOT_FOUND,
-            "Akun admin tidak ditemukan."
-          );
-        }
-
-        const { password, ...restAdmin } = admin;
 
         res.json({
           success: true,
-          data: {
-            category: category,
-            Admin: restAdmin,
-          },
+          data: updatedCategory,
         });
       } catch (error) {
         next(error);
