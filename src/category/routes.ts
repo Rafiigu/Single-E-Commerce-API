@@ -9,7 +9,7 @@ import {
   listCategoriesHandler,
   updateCategoryHandler,
 } from "./handlers";
-export const setUpCategoryRoutes: SetupRoutes = (app, { prisma }) => {
+export const setupCategoryRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
   router.get("/:id", authMiddleware(["admin"]), getCategoryHandler({ prisma }));
