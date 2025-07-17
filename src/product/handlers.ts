@@ -57,13 +57,24 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
           typeof listProductsQuerySchema
         >;
         console.log(query.categoryId);
-        // const listProducts = await prisma.product.findMany({
-        //   where: { categoryId:  req.parsedQuery.categoryId},
-        // });
-        // res.json({
-        //  success: true,
-        //  data: listProducts
-        //})
+        const listProducts = await prisma.product.findMany({
+          where: { categoryId: query.categoryId },
+          omit: {
+            categoryId: true,
+          },
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+        res.json({
+          success: true,
+          data: listProducts,
+        });
       } catch (error) {
         next(error);
       }
