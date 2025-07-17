@@ -138,16 +138,6 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
-        const existingProduct = await prisma.product.findFirst({
-          where: { name: data.name },
-        });
-
-        if (existingProduct && existingProduct.id !== req.params.id) {
-          throw createErrorWithMessage(
-            StatusCodes.BAD_REQUEST,
-            "Nama produk tidak dapat dipakai."
-          );
-        }
         const category = await prisma.category.findFirst({
           where: { id: data.categoryId },
         });
