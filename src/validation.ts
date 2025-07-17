@@ -22,21 +22,23 @@ export const withValidation = (
         req.params = schemaOptions.paramsSchema.parse(req.params);
       }
       if (schemaOptions.querySchema) {
+        console.log(req.query.categoryId);
         req.query = schemaOptions.querySchema.parse(req.query);
       }
 
       handler(req, res, next);
     } catch (error) {
+      console.log(error);
       if (error instanceof ZodError) {
         const fieldError: Record<string, string> = {};
         error.errors.forEach((e) => {
           fieldError[e.path.join(".")] = e.message;
         });
 
-        throw createFieldError(StatusCodes.BAD_REQUEST, fieldError);
+        next(createFieldError(StatusCodes.BAD_REQUEST, fieldError));
       }
 
-      throw createInternalError(error as Error);
+      next(createInternalError(error as Error));
     }
   };
 };

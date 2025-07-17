@@ -69,7 +69,7 @@ model Product {
   category           Category             @relation(fields: [categoryId], references: [id])
   name               String
   status             String
-  price              String
+  price              Int
   stock              Int
   description        String
   createdAt          DateTime             @default(now())

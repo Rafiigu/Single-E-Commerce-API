@@ -1,0 +1,19 @@
+meta {
+  name: Activate
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:5000/api/product/:id/activate
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: c4b69395-077e-4635-b3dd-8a9960c040e1
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}

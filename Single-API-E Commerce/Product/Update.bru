@@ -1,0 +1,28 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:5000/api/product/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: f33ebb8d-b938-4479-8b6f-5e4c75d349bd
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+body:json {
+  {
+    "name": "Carrot",
+    "price": 51000,
+    "categoryId": "385efdc2-5590-466e-9e05-2fdccfb34d7c",
+    "description": "Apel Enak"
+  }
+}

@@ -8,6 +8,7 @@ import { createMailClient } from "./mailer";
 import { ENV } from "./env";
 import { setupAdminRoutes } from "./admin/routes";
 import { setupCategoryRoutes } from "./category/routes";
+import { setupProductRoutes } from "./product/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -23,6 +24,7 @@ setupUserAuthRoutes(router, { prisma, mailer });
 setupAdminAuthRoutes(router, { prisma });
 setupAdminRoutes(router, { prisma });
 setupCategoryRoutes(router, { prisma });
+setupProductRoutes(router, { prisma });
 
 app.use("/api", router);
 
