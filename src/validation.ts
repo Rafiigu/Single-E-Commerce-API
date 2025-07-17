@@ -22,8 +22,7 @@ export const withValidation = (
         req.params = schemaOptions.paramsSchema.parse(req.params);
       }
       if (schemaOptions.querySchema) {
-        console.log(req.query.categoryId);
-        req.query = schemaOptions.querySchema.parse(req.query);
+        req.parsedQuery = schemaOptions.querySchema.parse(req.query);
       }
 
       handler(req, res, next);

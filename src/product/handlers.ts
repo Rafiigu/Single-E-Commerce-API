@@ -7,6 +7,7 @@ import {
   mutateProductBodySchema,
 } from "./validations";
 import { HandlerWithDeps } from "../types";
+import { z } from "zod";
 
 export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -51,8 +52,13 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
     { querySchema: listProductsQuerySchema },
     async (req, res, next) => {
       try {
+        // Infert the parsedQuery type based on the querySchema.
+        const query = req.parsedQuery as z.infer<
+          typeof listProductsQuerySchema
+        >;
+        console.log(query.categoryId);
         // const listProducts = await prisma.product.findMany({
-        //   where: { categoryId:  req.query.categoryId},
+        //   where: { categoryId:  req.parsedQuery.categoryId},
         // });
         // res.json({
         //  success: true,
