@@ -289,3 +289,14 @@ export const getProductImageHandler = (): Handler =>
       }
     }
   );
+
+export const createProductStockMutationHandler: HandlerWithDeps = ({
+  prisma,
+}) =>
+  withValidation(
+    {
+      paramsSchema: idProductParamsSchema,
+      // bodySchema:
+    },
+    (req, res, next) => {}
+  );

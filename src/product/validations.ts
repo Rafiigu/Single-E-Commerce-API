@@ -20,3 +20,9 @@ export const mutateProductBodySchema = z.object({
   categoryId: z.string({ required_error: "ID wajib ada." }),
   description: z.string().optional().default(""),
 });
+
+// createProductStockMutationBodySchema
+// { quantity, type, notes }
+// quantity: wajib dan positive,
+// type: 'in', 'out'
+// notes: optional

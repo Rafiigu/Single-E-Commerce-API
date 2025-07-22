@@ -60,5 +60,7 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
     getProductImageHandler()
   );
 
+  // .post("/:id/stock-mutation")
+
   app.use("/product", router);
 };
