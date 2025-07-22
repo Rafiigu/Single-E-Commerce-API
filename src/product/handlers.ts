@@ -3,11 +3,16 @@ import { createErrorWithMessage, createFieldError } from "../error";
 import { withValidation } from "../validation";
 import {
   idProductParamsSchema,
+  imageProductParamsSchema,
   listProductsQuerySchema,
   mutateProductBodySchema,
 } from "./validations";
 import { HandlerWithDeps } from "../types";
 import { z } from "zod";
+import { getFilePath, uploadFile } from "../uploader";
+import { MulterError } from "multer";
+import { Handler } from "express";
+import fs from "fs";
 
 export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -229,6 +234,56 @@ export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
           success: true,
           data: updateProduct,
         });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const uploadProductImageHandler = (): Handler => {
+  return (req, res, next) => {
+    uploadFile(req, res, function (error) {
+      if (error instanceof MulterError) {
+        next(
+          createFieldError(StatusCodes.BAD_REQUEST, {
+            file: "Gambar produk maksimal 5MB.",
+          })
+        );
+        return;
+      }
+
+      if (error && error instanceof Error) {
+        next(error);
+        return;
+      }
+
+      res.json({
+        data: {
+          file: req.file,
+        },
+      });
+    });
+  };
+};
+
+export const getProductImageHandler = (): Handler =>
+  withValidation(
+    {
+      paramsSchema: imageProductParamsSchema,
+    },
+    (req, res, next) => {
+      try {
+        const filename = req.params.filename;
+        const filePath = getFilePath(filename);
+
+        if (!filePath) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Gambar produk tidak ditemukan."
+          );
+        }
+
+        res.sendFile(filePath);
       } catch (error) {
         next(error);
       }

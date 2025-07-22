@@ -6,9 +6,12 @@ import {
   createProductHandler,
   deactivateProductHandler,
   getProductHandler,
+  getProductImageHandler,
   listProductsHandler,
   updateProductHandler,
+  uploadProductImageHandler,
 } from "./handlers";
+import { uploadFile } from "../uploader";
 
 export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
@@ -43,6 +46,18 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
     "/:id/deactivate",
     authMiddleware(["admin"]),
     deactivateProductHandler({ prisma })
+  );
+
+  router.post(
+    "/upload",
+    authMiddleware(["admin"]),
+    uploadProductImageHandler()
+  );
+
+  router.get(
+    "/file/:filename",
+    authMiddleware(["admin", "user"]),
+    getProductImageHandler()
   );
 
   app.use("/product", router);

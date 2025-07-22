@@ -1,0 +1,19 @@
+meta {
+  name: Upload Product Image
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:5000/api/product/upload
+  body: multipartForm
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+body:multipart-form {
+  file: @file(C:\Users\Latitude\Downloads\issac-newton.jpg)
+}

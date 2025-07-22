@@ -4,6 +4,10 @@ export const idProductParamsSchema = z.object({
   id: z.string({ required_error: "ID wajib ada." }),
 });
 
+export const imageProductParamsSchema = z.object({
+  filename: z.string({ required_error: "Nama file wajib ada." }),
+});
+
 export const listProductsQuerySchema = z.object({
   categoryId: z.string().optional(),
 });
