@@ -19,7 +19,7 @@ export const mutateProductBodySchema = z.object({
   price: z.number().nonnegative(),
   categoryId: z.string({ required_error: "ID wajib ada." }),
   description: z.string().optional().default(""),
-  fileName: z.string({ required_error: "File tidak boleh kosong" }),
+  fileName: z.string({ required_error: "Gambar produk tidak boleh kosong." }),
 });
 
 // createProductStockMutationBodySchema

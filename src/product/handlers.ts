@@ -346,13 +346,11 @@ export const createProductStockMutationHandler: HandlerWithDeps = ({
           },
         });
 
-        let stock;
+        let stock = product.stock;
         if (data.type === "in") {
-          stock = product.stock + data.quantity;
-        }
-
-        if (data.type === "out") {
-          stock = product.stock - data.quantity;
+          stock += data.quantity;
+        } else if (data.type === "out") {
+          stock -= data.quantity;
         }
 
         await prisma.product.update({
