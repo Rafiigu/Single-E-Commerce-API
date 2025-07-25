@@ -1,0 +1,15 @@
+meta {
+  name: Get Image
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:5000/api/product/file/9BqsWI8tY7_6.jpg
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}

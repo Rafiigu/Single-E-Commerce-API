@@ -4,6 +4,7 @@ import { authMiddleware } from "../auth/middleware";
 import {
   activateProductHandler,
   createProductHandler,
+  createProductStockMutationHandler,
   deactivateProductHandler,
   getProductHandler,
   getProductImageHandler,
@@ -60,7 +61,11 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
     getProductImageHandler()
   );
 
-  // .post("/:id/stock-mutation")
+  router.post(
+    "/:id/stock-mutation",
+    authMiddleware(["admin"]),
+    createProductStockMutationHandler({ prisma })
+  );
 
   app.use("/product", router);
 };

@@ -2,6 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import { createErrorWithMessage, createFieldError } from "../error";
 import { withValidation } from "../validation";
 import {
+  createProductStockMutationBodySchema,
   idProductParamsSchema,
   imageProductParamsSchema,
   listProductsQuerySchema,
@@ -102,12 +103,19 @@ export const createProductHandler: HandlerWithDeps = ({ prisma }) =>
           });
         }
 
+        if (!getFilePath(data.fileName)) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            fileName: "File tidak valid.",
+          });
+        }
+
         const product = await prisma.product.create({
           data: {
             name: data.name,
             status: "active",
             price: data.price,
             description: data.description,
+            imageFileName: data.fileName,
             categoryId: data.categoryId,
             stock: 0,
           },
@@ -153,6 +161,12 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
           });
         }
 
+        if (!getFilePath(data.fileName)) {
+          throw createFieldError(StatusCodes.NOT_FOUND, {
+            fileName: "File tidak valid.",
+          });
+        }
+
         const updatedProduct = await prisma.product.update({
           where: { id: req.params.id },
           data: {
@@ -161,6 +175,7 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
             description: data.description,
             categoryId: data.categoryId,
             stock: 0,
+            imageFileName: data.fileName,
           },
         });
 
@@ -296,7 +311,63 @@ export const createProductStockMutationHandler: HandlerWithDeps = ({
   withValidation(
     {
       paramsSchema: idProductParamsSchema,
-      // bodySchema:
+      bodySchema: createProductStockMutationBodySchema,
     },
-    (req, res, next) => {}
+    async (req, res, next) => {
+      const productId = req.params.id;
+      const data = req.body;
+
+      try {
+        const product = await prisma.product.findFirst({
+          where: { id: productId },
+        });
+
+        if (!product) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Produk tidak ditemukan."
+          );
+        }
+
+        if (data.type === "out" && product.stock < data.quantity) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            quantity:
+              "Jumlah stok saat ini lebih kecil dibandingkan stok yang mau dikeluarkan.",
+          });
+        }
+
+        const stockMutation = await prisma.stockMutation.create({
+          data: {
+            productId: productId,
+            currentStock: product.stock,
+            quantity: data.quantity,
+            type: data.type,
+            notes: data.notes,
+          },
+        });
+
+        let stock;
+        if (data.type === "in") {
+          stock = product.stock + data.quantity;
+        }
+
+        if (data.type === "out") {
+          stock = product.stock - data.quantity;
+        }
+
+        await prisma.product.update({
+          where: { id: productId },
+          data: {
+            stock: stock,
+          },
+        });
+
+        res.json({
+          success: true,
+          data: stockMutation,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
   );

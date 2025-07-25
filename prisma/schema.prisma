@@ -72,6 +72,7 @@ model Product {
   price              Int
   stock              Int
   description        String
+  imageFileName      String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   stockMutations     StockMutation[]
@@ -86,6 +87,7 @@ model StockMutation {
   currentStock Int
   quantity     Int
   type         String
+  notes        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

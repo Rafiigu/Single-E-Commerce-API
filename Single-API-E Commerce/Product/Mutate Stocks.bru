@@ -1,11 +1,11 @@
 meta {
-  name: Get Product
+  name: Mutate Stocks
   type: http
-  seq: 5
+  seq: 2
 }
 
-get {
-  url: http://localhost:5000/api/product/:id
+post {
+  url: http://localhost:5000/api/product/:id/stock-mutation
   body: none
   auth: bearer
 }
