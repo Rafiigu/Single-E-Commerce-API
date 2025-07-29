@@ -20,7 +20,7 @@ export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Ketentuan pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan."
           );
         }
 
@@ -34,7 +34,7 @@ export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const listpaymentTermsHandler: HandlerWithDeps =
+export const listPaymentTermsHandler: HandlerWithDeps =
   ({ prisma }) =>
   async (req, res, next) => {
     try {
@@ -60,8 +60,8 @@ export const createPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         });
 
         if (existingPaymentTerm) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            payment_term: "Nama term pembayaran tidak dapat dipakai.",
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            name: "Nama cara pembayaran tidak dapat dipakai.",
           });
         }
 
@@ -99,7 +99,7 @@ export const updatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!existingPaymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Ketentuan pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan."
           );
         }
 
@@ -109,7 +109,7 @@ export const updatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
 
         if (paymentTerm && paymentTerm.id !== id) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
-            nama: "Nama term pembayaran tidak dapat dipakai.",
+            name: "Nama cara pembayaran tidak dapat dipakai.",
           });
         }
 
@@ -142,7 +142,7 @@ export const activatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Ketentuan pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan."
           );
         }
 
@@ -175,7 +175,7 @@ export const deactivatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Ketentuan pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan."
           );
         }
 

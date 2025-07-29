@@ -6,7 +6,7 @@ import {
   createPaymentTermHandler,
   deactivatePaymentTermHandler,
   getPaymentTermHandler,
-  listpaymentTermsHandler,
+  listPaymentTermsHandler,
   updatePaymentTermHandler,
 } from "./handlers";
 
@@ -15,7 +15,7 @@ export const setupPaymentTermRoutes: SetupRoutes = (app, { prisma }) => {
 
   router.get("/:id", authMiddleware([]), getPaymentTermHandler({ prisma }));
 
-  router.get("/", authMiddleware([]), listpaymentTermsHandler({ prisma }));
+  router.get("/", authMiddleware([]), listPaymentTermsHandler({ prisma }));
 
   router.post("/", authMiddleware([]), createPaymentTermHandler({ prisma }));
 

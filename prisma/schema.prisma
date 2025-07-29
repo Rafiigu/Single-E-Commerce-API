@@ -98,8 +98,8 @@ model PaymentTerm {
   status          String
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
-  PaymentAccounts PaymentAccount[]
-  TopUps          TopUp[]
+  paymentAccounts PaymentAccount[]
+  topUps          TopUp[]
 }
 
 model PaymentAccount {
@@ -111,7 +111,7 @@ model PaymentAccount {
   status            String
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
-  TopUps            TopUp[]
+  topUps            TopUp[]
 }
 
 model Wishlist {
