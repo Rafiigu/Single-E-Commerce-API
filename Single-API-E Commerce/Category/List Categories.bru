@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/api/category/
+  url: http://localhost:5000/api/category/?status=all&search
   body: none
   auth: bearer
+}
+
+params:query {
+  status: all
+  search: 
 }
 
 auth:bearer {

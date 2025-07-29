@@ -2,10 +2,12 @@ import { withValidation } from "./../validation";
 import { HandlerWithDeps } from "../types";
 import {
   idCategoryParamsSchema,
+  listCategoriesQuerySchema,
   mutateCategoryBodySchema,
 } from "./validations";
 import { createErrorWithMessage, createFieldError } from "../error";
 import { StatusCodes } from "http-status-codes";
+import { z } from "zod";
 
 export const getCategoryHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -34,19 +36,52 @@ export const getCategoryHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const listCategoriesHandler: HandlerWithDeps =
-  ({ prisma }) =>
-  async (req, res, next) => {
-    try {
-      const categories = await prisma.category.findMany();
-      res.json({
-        success: true,
-        data: categories,
-      });
-    } catch (error) {
-      next(error);
+export const listCategoriesHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      querySchema: listCategoriesQuerySchema,
+    },
+    async (req, res, next) => {
+      try {
+        const { page, size, mode, status, search } =
+          req.parsedQuery as unknown as z.infer<
+            typeof listCategoriesQuerySchema
+          >;
+
+        const where = {
+          // jika field: undefined, artinya filter atas field tersebut tidak dilakukan.
+          name: search
+            ? {
+                contains: search,
+              }
+            : undefined,
+          status: status !== "all" ? status : undefined,
+        };
+
+        const categories = await prisma.category.findMany({
+          ...(mode === "pagination"
+            ? {
+                take: size,
+                skip: (page - 1) * size,
+              }
+            : {}),
+          where,
+        });
+
+        const total = await prisma.category.count({ where });
+
+        res.json({
+          success: true,
+          data: {
+            categories,
+            total,
+          },
+        });
+      } catch (error) {
+        next(error);
+      }
     }
-  };
+  );
 
 export const createCategoryHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
