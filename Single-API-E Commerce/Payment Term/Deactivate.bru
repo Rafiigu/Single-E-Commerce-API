@@ -1,0 +1,23 @@
+meta {
+  name: Deactivate
+  type: http
+  seq: 6
+}
+
+patch {
+  url: http://localhost:5000/api/payment-term/:id/deactivate
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 60448d67-f16a-4cee-a1cd-5c6bc5e2a361
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+settings {
+  encodeUrl: true
+}

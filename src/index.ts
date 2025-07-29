@@ -9,6 +9,7 @@ import { ENV } from "./env";
 import { setupAdminRoutes } from "./admin/routes";
 import { setupCategoryRoutes } from "./category/routes";
 import { setupProductRoutes } from "./product/routes";
+import { setupPaymentTermRoutes } from "./paymentTerm/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -25,6 +26,7 @@ setupAdminAuthRoutes(router, { prisma });
 setupAdminRoutes(router, { prisma });
 setupCategoryRoutes(router, { prisma });
 setupProductRoutes(router, { prisma });
+setupPaymentTermRoutes(router, { prisma });
 
 app.use("/api", router);
 

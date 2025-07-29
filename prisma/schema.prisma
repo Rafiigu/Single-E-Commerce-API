@@ -92,6 +92,28 @@ model StockMutation {
   updatedAt    DateTime @updatedAt
 }
 
+model PaymentTerm {
+  id              String           @id @default(uuid())
+  name            String
+  status          String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  PaymentAccounts PaymentAccount[]
+  TopUps          TopUp[]
+}
+
+model PaymentAccount {
+  id                String      @id @default(uuid())
+  paymentTermId     String
+  paymentTerm       PaymentTerm @relation(fields: [paymentTermId], references: [id])
+  accountHolderName String
+  accountNumber     String
+  status            String
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  TopUps            TopUp[]
+}
+
 model Wishlist {
   id        String   @id @default(uuid())
   userId    String
@@ -103,16 +125,20 @@ model Wishlist {
 }
 
 model TopUp {
-  id                      String   @id @default(uuid())
+  id                      String         @id @default(uuid())
   nominal                 Int
   adminId                 String?
-  admin                   Admin?   @relation(fields: [adminId], references: [id])
+  admin                   Admin?         @relation(fields: [adminId], references: [id])
   userId                  String
-  user                    User     @relation(fields: [userId], references: [id])
+  user                    User           @relation(fields: [userId], references: [id])
   proofOfTransferFileName String
   status                  String
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  paymentAccountId        String
+  PaymentAccount          PaymentAccount @relation(fields: [paymentAccountId], references: [id])
+  paymentTermId           String
+  paymentTerm             PaymentTerm    @relation(fields: [paymentTermId], references: [id])
 }
 
 model Transaction {
