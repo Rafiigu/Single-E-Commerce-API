@@ -6,22 +6,16 @@ meta {
 
 put {
   url: http://localhost:5000/api/payment-term/:id
-  body: json
+  body: none
   auth: bearer
 }
 
 params:path {
-  id: 60448d67-f16a-4cee-a1cd-5c6bc5e2a361
+  id: 
 }
 
 auth:bearer {
   token: {{AUTH_TOKEN}}
-}
-
-body:json {
-  {
-    "name": "BCA"
-  }
 }
 
 settings {

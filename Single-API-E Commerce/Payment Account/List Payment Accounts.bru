@@ -1,19 +1,15 @@
 meta {
-  name: Create
+  name: List Payment Accounts
   type: http
   seq: 3
 }
 
-post {
-  url: http://localhost:5000/api/payment-term
+get {
+  url: http://localhost:5000/api/payment-account
   body: none
   auth: bearer
 }
 
 auth:bearer {
   token: {{AUTH_TOKEN}}
-}
-
-settings {
-  encodeUrl: true
 }

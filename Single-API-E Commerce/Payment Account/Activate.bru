@@ -1,0 +1,19 @@
+meta {
+  name: Activate
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:5000/api/payment-account/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 4dc93857-2644-4fa6-b3b5-f4534a2a4c2f
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}

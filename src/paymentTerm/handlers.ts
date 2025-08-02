@@ -4,8 +4,10 @@ import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import {
   idPaymentTermParamsSchema,
+  listPaymentTermQuerySchema,
   mutatePaymentTermBodySchema,
 } from "./validations";
+import { z } from "zod";
 
 export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -34,20 +36,49 @@ export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const listPaymentTermsHandler: HandlerWithDeps =
-  ({ prisma }) =>
-  async (req, res, next) => {
-    try {
-      const paymentTerms = await prisma.paymentTerm.findMany();
+export const listPaymentTermsHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    { querySchema: listPaymentTermQuerySchema },
+    async (req, res, next) => {
+      try {
+        const { page, size, mode, status, search } =
+          req.parsedQuery as unknown as z.infer<
+            typeof listPaymentTermQuerySchema
+          >;
 
-      res.json({
-        success: true,
-        data: paymentTerms,
-      });
-    } catch (error) {
-      next(error);
+        const where = {
+          name: search
+            ? {
+                contains: search,
+              }
+            : undefined,
+          status: status !== "all" ? status : undefined,
+        };
+
+        const paymentTerms = await prisma.paymentTerm.findMany({
+          ...(mode === "pagination"
+            ? {
+                take: size,
+                skip: (page - 1) * size,
+              }
+            : {}),
+          where,
+        });
+
+        const total = await prisma.paymentTerm.count({ where });
+
+        res.json({
+          success: true,
+          data: {
+            paymentTerms,
+            total,
+          },
+        });
+      } catch (error) {
+        next(error);
+      }
     }
-  };
+  );
 
 export const createPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(

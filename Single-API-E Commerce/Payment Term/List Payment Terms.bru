@@ -1,19 +1,21 @@
 meta {
   name: List Payment Terms
   type: http
-  seq: 2
+  seq: 1
 }
 
 get {
-  url: http://localhost:5000/api/payment-term
+  url: http://localhost:5000/api/payment-term?status=all&page=1&size=2
   body: none
   auth: bearer
 }
 
-auth:bearer {
-  token: {{AUTH_TOKEN}}
+params:query {
+  status: all
+  page: 1
+  size: 2
 }
 
-settings {
-  encodeUrl: true
+auth:bearer {
+  token: {{AUTH_TOKEN}}
 }

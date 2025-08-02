@@ -1,0 +1,27 @@
+meta {
+  name: Update
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://localhost:5000/api/payment-account/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+body:json {
+  {
+    "paymentTermId": "f7dfcfe7-064e-4d5e-9188-3cf4592f774a",
+    "accountHolderName": "Rafiigu",
+    "accountNumber": "32456543"
+  }
+}
