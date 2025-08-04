@@ -59,12 +59,27 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
     async (req, res, next) => {
       try {
         // Infert the parsedQuery type based on the querySchema.
-        const query = req.parsedQuery as z.infer<
-          typeof listProductsQuerySchema
-        >;
-        console.log(query.categoryId);
+        const { search, status, categoryId, mode, page, size } =
+          req.parsedQuery as unknown as z.infer<typeof listProductsQuerySchema>;
+
+        const where = {
+          name: search
+            ? {
+                contains: search,
+              }
+            : undefined,
+          status: status !== "all" ? status : undefined,
+          categoryId: categoryId !== "all" ? categoryId : undefined,
+        };
+
         const listProducts = await prisma.product.findMany({
-          where: { categoryId: query.categoryId },
+          ...(mode === "pagination"
+            ? {
+                take: size,
+                skip: (page - 1) * size,
+              }
+            : {}),
+          where,
           omit: {
             categoryId: true,
           },
@@ -77,9 +92,15 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
             },
           },
         });
+
+        const total = await prisma.product.count({ where });
+
         res.json({
           success: true,
-          data: listProducts,
+          data: {
+            products: listProducts,
+            total,
+          },
         });
       } catch (error) {
         next(error);

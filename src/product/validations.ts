@@ -1,15 +1,38 @@
 import { z } from "zod";
 
+export const listProductsQuerySchema = z.object({
+  mode: z.enum(["all", "pagination"]).default("pagination"),
+  page: z.coerce
+    .number()
+    .default(1)
+    .transform((v) => {
+      if (v < 1) {
+        return 1;
+      }
+
+      return v;
+    }),
+  size: z.coerce
+    .number()
+    .default(10)
+    .transform((v) => {
+      if (v < 1) {
+        return 1;
+      }
+
+      return v;
+    }),
+  search: z.string().optional(),
+  status: z.enum(["active", "inactive", "all"]).default("all"),
+  categoryId: z.string().optional().default("all"),
+});
+
 export const idProductParamsSchema = z.object({
   id: z.string({ required_error: "ID wajib ada." }),
 });
 
 export const imageProductParamsSchema = z.object({
   filename: z.string({ required_error: "Nama file wajib ada." }),
-});
-
-export const listProductsQuerySchema = z.object({
-  categoryId: z.string().optional(),
 });
 
 export const mutateProductBodySchema = z.object({
