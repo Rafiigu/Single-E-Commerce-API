@@ -5,8 +5,10 @@ import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import {
   idPaymentAccountParamsSchema,
+  listPaymentAccountsQuerySchema,
   mutatePaymentAccountBodySchema,
 } from "./validations";
+import { z } from "zod";
 
 export const getPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -46,31 +48,72 @@ export const getPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const listPaymentAccountsHandler: HandlerWithDeps =
-  ({ prisma }) =>
-  async (req, res, next) => {
-    try {
-      const listPaymentAccounts = await prisma.paymentAccount.findMany({
-        omit: {
-          paymentTermId: true,
-        },
-        include: {
-          paymentTerm: {
-            select: {
-              id: true,
-              name: true,
+export const listPaymentAccountsHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      querySchema: listPaymentAccountsQuerySchema,
+    },
+    async (req, res, next) => {
+      try {
+        const { page, size, mode, status, search, paymentTermId } =
+          req.parsedQuery as unknown as z.infer<
+            typeof listPaymentAccountsQuerySchema
+          >;
+
+        const where = {
+          OR: search
+            ? [
+                {
+                  accountHolderName: {
+                    contains: search,
+                  },
+                },
+                {
+                  accountNumber: {
+                    contains: search,
+                  },
+                },
+              ]
+            : undefined,
+          paymentTermId: paymentTermId !== "all" ? paymentTermId : undefined,
+          status: status !== "all" ? status : undefined,
+        };
+
+        const listPaymentAccounts = await prisma.paymentAccount.findMany({
+          ...(mode === "pagination"
+            ? {
+                take: size,
+                skip: (page - 1) * size,
+              }
+            : {}),
+          where,
+          omit: {
+            paymentTermId: true,
+          },
+          include: {
+            paymentTerm: {
+              select: {
+                id: true,
+                name: true,
+              },
             },
           },
-        },
-      });
-      res.json({
-        success: true,
-        data: listPaymentAccounts,
-      });
-    } catch (error) {
-      next(error);
+        });
+
+        const total = await prisma.paymentAccount.count({ where });
+
+        res.json({
+          success: true,
+          data: {
+            paymentAccounts: listPaymentAccounts,
+            total,
+          },
+        });
+      } catch (error) {
+        next(error);
+      }
     }
-  };
+  );
 
 export const createPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(

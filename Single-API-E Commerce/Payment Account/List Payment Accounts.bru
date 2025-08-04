@@ -5,9 +5,14 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/api/payment-account
+  url: http://localhost:5000/api/payment-account?search=111&paymentTermId=e291b1ff-e075-4df3-b922-7cd38f4f69c5
   body: none
   auth: bearer
+}
+
+params:query {
+  search: 111
+  paymentTermId: e291b1ff-e075-4df3-b922-7cd38f4f69c5
 }
 
 auth:bearer {
