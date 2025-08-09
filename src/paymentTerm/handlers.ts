@@ -4,7 +4,7 @@ import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import {
   idPaymentTermParamsSchema,
-  listPaymentTermQuerySchema,
+  listPaymentTermsQuerySchema,
   mutatePaymentTermBodySchema,
 } from "./validations";
 import { z } from "zod";
@@ -38,12 +38,12 @@ export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
 
 export const listPaymentTermsHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
-    { querySchema: listPaymentTermQuerySchema },
+    { querySchema: listPaymentTermsQuerySchema },
     async (req, res, next) => {
       try {
         const { page, size, mode, status, search } =
           req.parsedQuery as unknown as z.infer<
-            typeof listPaymentTermQuerySchema
+            typeof listPaymentTermsQuerySchema
           >;
 
         const where = {
