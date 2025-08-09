@@ -12,7 +12,7 @@ export const mutatePaymentTermBodySchema = z.object({
     .min(1, "Nama ketentuan pembayaran minimal 1 karakter"),
 });
 
-export const listPaymentTermQuerySchema = z.object({
+export const listPaymentTermsQuerySchema = z.object({
   mode: z
     .enum(["all", "pagination"], {
       errorMap: () => {

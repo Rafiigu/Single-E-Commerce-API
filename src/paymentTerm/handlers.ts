@@ -4,8 +4,8 @@ import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import {
   idPaymentTermParamsSchema,
-  listPaymentTermsQuerySchema,
   mutatePaymentTermBodySchema,
+  listPaymentTermsQuerySchema,
 } from "./validations";
 import { z } from "zod";
 
