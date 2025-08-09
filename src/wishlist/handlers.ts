@@ -98,6 +98,12 @@ export const listWishlistsHandler: HandlerWithDeps = ({ prisma }) =>
         >;
 
         const listWishlists = await prisma.wishlist.findMany({
+          ...(mode === "pagination"
+            ? {
+                take: size,
+                skip: (page - 1) * size,
+              }
+            : {}),
           where: { userId: req.account.id },
           select: {
             productId: true,
@@ -106,8 +112,8 @@ export const listWishlistsHandler: HandlerWithDeps = ({ prisma }) =>
 
         console.log(listWishlists);
 
-        const productIds = listWishlists.map(function (product) {
-          return product.productId;
+        const productIds = listWishlists.map((wishlist) => {
+          return wishlist.productId;
         });
 
         console.log(productIds);
