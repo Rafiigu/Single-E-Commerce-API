@@ -5,7 +5,10 @@ import jwt, { JsonWebTokenError } from "jsonwebtoken";
 import { Payload, Role } from "./types";
 import { ENV } from "../env";
 
-export const authMiddleware = (allowedRoles: Role[]): Handler => {
+export const authMiddleware = (
+  allowedRoles: Role[],
+  excludeSuperadmin = false
+): Handler => {
   return (req, res, next) => {
     try {
       const authorization = req.headers["authorization"];
@@ -39,6 +42,10 @@ export const authMiddleware = (allowedRoles: Role[]): Handler => {
         payload.role !== "superadmin" &&
         !allowedRoles.includes(payload.role)
       ) {
+        throw createErrorWithMessage(StatusCodes.UNAUTHORIZED, "Unauthorized");
+      }
+
+      if (excludeSuperadmin && payload.role === "superadmin") {
         throw createErrorWithMessage(StatusCodes.UNAUTHORIZED, "Unauthorized");
       }
 

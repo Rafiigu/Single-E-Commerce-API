@@ -13,25 +13,25 @@ export const setUpWishlistRoutes: SetupRoutes = (app, { prisma }) => {
 
   router.post(
     "/wishlist",
-    authMiddleware(["user"]),
+    authMiddleware(["user"], true),
     createWishlistHandler({ prisma })
   );
 
   router.post(
     "/unwishlist",
-    authMiddleware(["user"]),
+    authMiddleware(["user"], true),
     deleteWishlistHandler({ prisma })
   );
 
   router.get(
     "/wishlist",
-    authMiddleware(["user"]),
+    authMiddleware(["user"], true),
     listWishlistsHandler({ prisma })
   );
 
   router.get(
     "/wishlist/:productId/check",
-    authMiddleware(["user"]),
+    authMiddleware(["user"], true),
     getWishlistHandler({ prisma })
   );
 
