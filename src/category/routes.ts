@@ -14,12 +14,12 @@ export const setupCategoryRoutes: SetupRoutes = (app, { prisma }) => {
 
   router.get(
     "/:id",
-    authMiddleware(["admin", "user"]),
+    authMiddleware(["admin", "user", "staff"]),
     getCategoryHandler({ prisma })
   );
   router.get(
     "/",
-    authMiddleware(["admin", "user"]),
+    authMiddleware(["admin", "user", "staff"]),
     listCategoriesHandler({ prisma })
   );
   router.post(

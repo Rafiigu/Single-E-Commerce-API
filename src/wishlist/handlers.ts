@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { createErrorWithMessage, createFieldError } from "../error";
+import { createErrorWithMessage } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import { idProductParamsSchema, listWishlistsQuerySchema } from "./validations";
@@ -15,9 +15,10 @@ export const createWishlistHandler: HandlerWithDeps = ({ prisma }) =>
         });
 
         if (!existingProduct) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            productId: "Produk tidak ditemukan.",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Produk tidak ditemukan."
+          );
         }
 
         const existingWishlist = await prisma.wishlist.findFirst({
@@ -25,9 +26,10 @@ export const createWishlistHandler: HandlerWithDeps = ({ prisma }) =>
         });
 
         if (existingWishlist) {
-          throw createFieldError(StatusCodes.BAD_REQUEST, {
-            wishlist: "Produk sudah di-wishlist",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.BAD_REQUEST,
+            "Produk sudah di-wishlist"
+          );
         }
 
         const wishlist = await prisma.wishlist.create({
@@ -57,9 +59,10 @@ export const deleteWishlistHandler: HandlerWithDeps = ({ prisma }) =>
         });
 
         if (!existingProduct) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            productId: "Produk tidak ditemukan.",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Produk tidak ditemukan."
+          );
         }
 
         const existingWishlist = await prisma.wishlist.findFirst({
@@ -67,9 +70,10 @@ export const deleteWishlistHandler: HandlerWithDeps = ({ prisma }) =>
         });
 
         if (!existingWishlist) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            wishlist: "wishlist tidak ditemukan.",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "wishlist tidak ditemukan."
+          );
         }
 
         await prisma.wishlist.delete({

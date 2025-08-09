@@ -1,4 +1,3 @@
-import { PaymentAccount } from "./../../generated/prisma/index.d"; //Nanti tanya tntng ini
 import { StatusCodes } from "http-status-codes";
 import { createErrorWithMessage, createFieldError } from "../error";
 import { HandlerWithDeps } from "../types";
