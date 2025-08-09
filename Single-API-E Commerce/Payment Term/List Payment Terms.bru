@@ -5,13 +5,12 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/api/payment-term?status=all&page=1&size=2
+  url: http://localhost:5000/api/payment-term?page=1&size=2
   body: none
   auth: bearer
 }
 
 params:query {
-  status: all
   page: 1
   size: 2
 }
