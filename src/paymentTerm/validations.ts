@@ -13,7 +13,13 @@ export const mutatePaymentTermBodySchema = z.object({
 });
 
 export const listPaymentTermQuerySchema = z.object({
-  mode: z.enum(["all", "pagination"]).default("pagination"),
+  mode: z
+    .enum(["all", "pagination"], {
+      errorMap: () => {
+        return { message: "Mode list harus antara all dan pagination." };
+      },
+    })
+    .default("pagination"),
   page: z.coerce
     .number()
     .default(1)
@@ -35,5 +41,13 @@ export const listPaymentTermQuerySchema = z.object({
       return v;
     }),
   search: z.string().optional(),
-  status: z.enum(["active", "inactive", "all"]).default("all"),
+  status: z
+    .enum(["active", "inactive", "all"], {
+      errorMap: () => {
+        return {
+          message: "Status harus antara active atau inactive atau all.",
+        };
+      },
+    })
+    .default("all"),
 });

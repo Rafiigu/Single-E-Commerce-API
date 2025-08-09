@@ -13,9 +13,17 @@ import {
 export const setupPaymentTermRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
-  router.get("/:id", authMiddleware([]), getPaymentTermHandler({ prisma }));
+  router.get(
+    "/:id",
+    authMiddleware(["user"]),
+    getPaymentTermHandler({ prisma })
+  );
 
-  router.get("/", authMiddleware([]), listPaymentTermsHandler({ prisma }));
+  router.get(
+    "/",
+    authMiddleware(["user"]),
+    listPaymentTermsHandler({ prisma })
+  );
 
   router.post("/", authMiddleware([]), createPaymentTermHandler({ prisma }));
 

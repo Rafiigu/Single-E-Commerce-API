@@ -12,8 +12,16 @@ import {
 export const setupCategoryRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
-  router.get("/:id", authMiddleware(["admin"]), getCategoryHandler({ prisma }));
-  router.get("/", authMiddleware(["admin"]), listCategoriesHandler({ prisma }));
+  router.get(
+    "/:id",
+    authMiddleware(["admin", "user"]),
+    getCategoryHandler({ prisma })
+  );
+  router.get(
+    "/",
+    authMiddleware(["admin", "user"]),
+    listCategoriesHandler({ prisma })
+  );
   router.post(
     "/",
     authMiddleware(["admin"]),

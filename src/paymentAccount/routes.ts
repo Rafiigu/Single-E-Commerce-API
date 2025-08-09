@@ -13,9 +13,17 @@ import {
 export const setUpPaymentAccountRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
-  router.get("/:id", authMiddleware([]), getPaymentAccountHandler({ prisma }));
+  router.get(
+    "/:id",
+    authMiddleware(["user"]),
+    getPaymentAccountHandler({ prisma })
+  );
 
-  router.get("/", authMiddleware([]), listPaymentAccountsHandler({ prisma }));
+  router.get(
+    "/",
+    authMiddleware(["user"]),
+    listPaymentAccountsHandler({ prisma })
+  );
 
   router.post("/", authMiddleware([]), createPaymentAccountHandler({ prisma }));
 

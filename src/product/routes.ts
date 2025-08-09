@@ -19,13 +19,13 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
 
   router.get(
     "/:id",
-    authMiddleware(["admin", "staff"]),
+    authMiddleware(["admin", "staff", "user"]),
     getProductHandler({ prisma })
   );
 
   router.get(
     "/",
-    authMiddleware(["admin", "staff"]),
+    authMiddleware(["admin", "staff", "user"]),
     listProductsHandler({ prisma })
   );
 

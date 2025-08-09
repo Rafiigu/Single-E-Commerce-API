@@ -1,7 +1,15 @@
 import { z } from "zod";
 
 export const listProductsQuerySchema = z.object({
-  mode: z.enum(["all", "pagination"]).default("pagination"),
+  mode: z
+    .enum(["all", "pagination"], {
+      errorMap: () => {
+        return {
+          message: "Mode harus antara all atau pagination",
+        };
+      },
+    })
+    .default("pagination"),
   page: z.coerce
     .number()
     .default(1)
@@ -23,7 +31,15 @@ export const listProductsQuerySchema = z.object({
       return v;
     }),
   search: z.string().optional(),
-  status: z.enum(["active", "inactive", "all"]).default("all"),
+  status: z
+    .enum(["active", "inactive", "all"], {
+      errorMap: () => {
+        return {
+          message: "Status harus antara active atau inactive atau all.",
+        };
+      },
+    })
+    .default("all"),
   categoryId: z.string().optional().default("all"),
 });
 
@@ -53,6 +69,17 @@ export const mutateProductBodySchema = z.object({
 
 export const createProductStockMutationBodySchema = z.object({
   quantity: z.number().nonnegative(),
-  type: z.enum(["in", "out"]),
+  type: z.enum(["in", "out"], {
+    errorMap: (issue) => {
+      if (issue.code === "invalid_enum_value") {
+        return {
+          message: "Type harus antara in atau out.",
+        };
+      }
+      return {
+        message: "Type tidak boleh kosong.",
+      };
+    },
+  }),
   notes: z.string().optional(),
 });

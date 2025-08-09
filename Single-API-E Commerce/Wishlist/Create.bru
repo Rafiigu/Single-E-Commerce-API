@@ -1,0 +1,25 @@
+meta {
+  name: Create
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5000/api/wishlist
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+body:json {
+  {
+    "productId": "16425903-ffa6-436f-a13f-23a2e8e09f8c"
+  }
+}
+
+settings {
+  encodeUrl: true
+}
