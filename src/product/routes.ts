@@ -17,17 +17,9 @@ import { uploadFile } from "../uploader";
 export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
-  router.get(
-    "/:id",
-    authMiddleware(["admin", "staff", "user"]),
-    getProductHandler({ prisma })
-  );
+  router.get("/:id", getProductHandler({ prisma }));
 
-  router.get(
-    "/",
-    authMiddleware(["admin", "staff", "user"]),
-    listProductsHandler({ prisma })
-  );
+  router.get("/", listProductsHandler({ prisma }));
 
   router.post("/", authMiddleware(["admin"]), createProductHandler({ prisma }));
 
