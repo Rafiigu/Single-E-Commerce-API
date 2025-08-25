@@ -6,7 +6,8 @@ import { StatusCodes } from "http-status-codes";
 import { Payload } from "../types";
 import Jwt from "jsonwebtoken";
 import { ENV } from "../../env";
-import { loginBodySchema } from "./validation";
+import { loginBodySchema, updateProfileBodySchema } from "./validation";
+import { z } from "zod";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation({ bodySchema: loginBodySchema }, async (req, res, next) => {
@@ -51,7 +52,39 @@ export const loginHandler: HandlerWithDeps = ({ prisma }) =>
     }
   });
 
-export const getLoggedInAdmin: HandlerWithDeps =
+export const updateProfileHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      bodySchema: updateProfileBodySchema,
+    },
+    async (req, res, next) => {
+      console.log("kena akses");
+      try {
+        const account = req.account;
+        const data = req.body as z.infer<typeof updateProfileBodySchema>;
+
+        const updated = await prisma.admin.update({
+          where: {
+            id: account.id,
+          },
+          data: {
+            name: data.name,
+          },
+        });
+
+        const { password, ...rest } = updated;
+
+        res.json({
+          success: true,
+          data: rest,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const getLoggedInAdminHandler: HandlerWithDeps =
   ({ prisma }) =>
   async (req, res, next) => {
     try {

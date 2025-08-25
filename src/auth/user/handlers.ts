@@ -220,7 +220,7 @@ export const verifyHandler: HandlerWithDeps = ({ prisma }) =>
     }
   });
 
-export const getLoggedInUser: HandlerWithDeps =
+export const getLoggedInUserHandler: HandlerWithDeps =
   ({ prisma }) =>
   async (req, res, next) => {
     try {

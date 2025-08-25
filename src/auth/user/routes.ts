@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  getLoggedInUser,
+  getLoggedInUserHandler,
   loginHandler,
   registerHandler,
   verifyHandler,
@@ -17,7 +17,11 @@ export const setupAuthRoutes: SetupRoutes = (app, { prisma, mailer }) => {
   router.post("/login", loginHandler({ prisma }));
   router.post("/register", registerHandler({ prisma, mailer }));
   router.post("/verify-account", verifyHandler({ prisma }));
-  router.get("/me", authMiddleware(["user"]), getLoggedInUser({ prisma }));
+  router.get(
+    "/me",
+    authMiddleware(["user"]),
+    getLoggedInUserHandler({ prisma })
+  );
   router.post("/forgot-password", forgotPasswordHandler({ prisma, mailer }));
   router.post("/reset-password", resetPasswordHandler({ prisma }));
   router.post(
