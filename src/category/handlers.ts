@@ -72,10 +72,8 @@ export const listCategoriesHandler: HandlerWithDeps = ({ prisma }) =>
 
         res.json({
           success: true,
-          data: {
-            categories,
-            total,
-          },
+          data: categories,
+          total,
         });
       } catch (error) {
         next(error);

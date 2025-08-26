@@ -97,10 +97,8 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
 
         res.json({
           success: true,
-          data: {
-            products: listProducts,
-            total,
-          },
+          data: listProducts,
+          total,
         });
       } catch (error) {
         next(error);

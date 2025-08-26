@@ -3,8 +3,13 @@ import { StatusCodes } from "http-status-codes";
 import { createErrorWithMessage, createFieldError } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
-import { mutateAdminBodySchema, idAdminParamsSchema } from "./validations";
+import {
+  mutateAdminBodySchema,
+  idAdminParamsSchema,
+  listAdminsQuerySchema,
+} from "./validations";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 
 export const getAdminHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -37,24 +42,59 @@ export const getAdminHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const listAdminsHandler: HandlerWithDeps =
-  ({ prisma }) =>
-  async (req, res, next) => {
-    try {
-      const admins = await prisma.admin.findMany({
-        omit: {
-          password: true,
-        },
-      });
+export const listAdminsHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      querySchema: listAdminsQuerySchema,
+    },
+    async (req, res, next) => {
+      try {
+        const { mode, page, size, status, search } =
+          req.parsedQuery as unknown as z.infer<typeof listAdminsQuerySchema>;
 
-      res.json({
-        success: true,
-        data: admins,
-      });
-    } catch (error) {
-      next(error);
+        const where = {
+          OR: search
+            ? [
+                {
+                  name: {
+                    contains: search,
+                  },
+                },
+                {
+                  name: {
+                    contains: search,
+                  },
+                },
+              ]
+            : undefined,
+          status: status !== "all" ? status : undefined,
+        };
+
+        const admins = await prisma.admin.findMany({
+          ...(mode === "pagination"
+            ? {
+                take: size,
+                skip: (page - 1) * size,
+              }
+            : {}),
+          omit: {
+            password: true,
+          },
+          where,
+        });
+
+        const total = await prisma.admin.count({ where });
+
+        res.json({
+          success: true,
+          data: admins,
+          total,
+        });
+      } catch (error) {
+        next(error);
+      }
     }
-  };
+  );
 
 export const createAdminHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(

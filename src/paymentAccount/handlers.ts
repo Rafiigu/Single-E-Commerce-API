@@ -103,10 +103,8 @@ export const listPaymentAccountsHandler: HandlerWithDeps = ({ prisma }) =>
 
         res.json({
           success: true,
-          data: {
-            paymentAccounts: listPaymentAccounts,
-            total,
-          },
+          data: listPaymentAccounts,
+          total,
         });
       } catch (error) {
         next(error);

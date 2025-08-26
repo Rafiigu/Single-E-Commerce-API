@@ -69,10 +69,8 @@ export const listPaymentTermsHandler: HandlerWithDeps = ({ prisma }) =>
 
         res.json({
           success: true,
-          data: {
-            paymentTerms,
-            total,
-          },
+          data: paymentTerms,
+          total,
         });
       } catch (error) {
         next(error);
