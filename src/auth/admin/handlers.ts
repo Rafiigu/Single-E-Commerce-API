@@ -6,7 +6,11 @@ import { StatusCodes } from "http-status-codes";
 import { Payload } from "../types";
 import Jwt from "jsonwebtoken";
 import { ENV } from "../../env";
-import { loginBodySchema, updateProfileBodySchema } from "./validation";
+import {
+  loginBodySchema,
+  updatePasswordBodySchema,
+  updateProfileBodySchema,
+} from "./validation";
 import { z } from "zod";
 
 export const loginHandler: HandlerWithDeps = ({ prisma }) =>
@@ -116,3 +120,46 @@ export const getLoggedInAdminHandler: HandlerWithDeps =
       next(error);
     }
   };
+
+export const updatePasswordHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    { bodySchema: updatePasswordBodySchema },
+    async (req, res, next) => {
+      const data = req.body;
+      try {
+        const admin = await prisma.admin.findFirst({
+          where: { id: req.account.id },
+        });
+
+        if (!admin) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Akun tidak ditemukan."
+          );
+        }
+
+        if (!bcrypt.compareSync(data.currentPassword, admin.password)) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            currentPassword: "Password lama salah.",
+          });
+        }
+
+        const salt = bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(data.newPassword, salt);
+
+        const updatedAdmin = await prisma.admin.update({
+          where: { id: admin.id },
+          data: { password: hashedPassword, isPasswordChanged: true },
+        });
+
+        const { password, ...restUpdatedAdmin } = updatedAdmin;
+
+        res.json({
+          success: true,
+          data: restUpdatedAdmin,
+        });
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
