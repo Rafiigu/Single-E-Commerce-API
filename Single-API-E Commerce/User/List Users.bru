@@ -1,0 +1,26 @@
+meta {
+  name: List Users
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:5000/api/user?search&page=1&size=2&status=verified
+  body: none
+  auth: bearer
+}
+
+params:query {
+  search: 
+  page: 1
+  size: 2
+  status: verified
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+settings {
+  encodeUrl: true
+}

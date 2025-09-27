@@ -1,0 +1,23 @@
+meta {
+  name: Unblock
+  type: http
+  seq: 3
+}
+
+patch {
+  url: http://localhost:5000/api/user/:id/unblock
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 16842011-0e19-424c-bce3-a459f622f349
+}
+
+auth:bearer {
+  token: {{AUTH_TOKEN}}
+}
+
+settings {
+  encodeUrl: true
+}

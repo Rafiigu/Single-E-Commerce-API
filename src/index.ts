@@ -12,6 +12,7 @@ import { setupProductRoutes } from "./product/routes";
 import { setupPaymentTermRoutes } from "./paymentTerm/routes";
 import { setUpPaymentAccountRoutes } from "./paymentAccount/routes";
 import { setUpWishlistRoutes } from "./wishlist/router";
+import { setupUserRoutes } from "./user/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -31,6 +32,7 @@ setupProductRoutes(router, { prisma });
 setupPaymentTermRoutes(router, { prisma });
 setUpPaymentAccountRoutes(router, { prisma });
 setUpWishlistRoutes(router, { prisma });
+setupUserRoutes(router, { prisma });
 
 app.use("/api", router);
 
