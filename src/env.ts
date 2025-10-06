@@ -5,4 +5,5 @@ export const ENV = {
   SYSTEM_EMAIL_PASSWORD: process.env.SYSTEM_EMAIL_PASSWORD || "",
   PORT: parseInt(process.env.PORT || ""),
   FILE_DIRECTORY: process.env.FILE_DIRECTORY || "./data",
+  APP_URL: process.env.APP_URL || "",
 };

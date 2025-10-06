@@ -138,7 +138,7 @@ export const registerHandler: HandlerWithDeps = ({ prisma, mailer }) =>
 
         await mailer?.send(data.email, {
           subject: "Account Verification",
-          html: `<a href="http://localhost:3000/verify-account?email=${newUser.email}&token=${token}">Verifikasi Akun</a>`,
+          html: `<a href="${ENV.APP_URL}/verify-account?email=${newUser.email}&token=${token}">Verifikasi Akun</a>`,
         });
 
         return newUser;
@@ -315,7 +315,7 @@ export const forgotPasswordHandler: HandlerWithDeps = ({ prisma, mailer }) =>
 
           await mailer?.send(email, {
             subject: "Forgot Password",
-            html: `<a href="http://localhost:3000/reset-password?email=${user.email}&token=${token}">Verifikasi Akun</a>`,
+            html: `<a href="${ENV.APP_URL}/reset-password?email=${user.email}&token=${token}">Verifikasi Akun</a>`,
           });
         });
 
