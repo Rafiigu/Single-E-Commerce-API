@@ -61,7 +61,7 @@ export const listAdminsHandler: HandlerWithDeps = ({ prisma }) =>
                   },
                 },
                 {
-                  name: {
+                  email: {
                     contains: search,
                   },
                 },
