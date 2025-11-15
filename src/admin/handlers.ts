@@ -174,6 +174,7 @@ export const updateAdminHandler: HandlerWithDeps = ({ prisma }) =>
           data: {
             name: data.name,
             email: data.email,
+            role: data.role,
             password: account.password,
           },
         });
