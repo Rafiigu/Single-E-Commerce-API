@@ -13,7 +13,6 @@ import { z } from "zod";
 import { getFilePath, uploadFile } from "../uploader";
 import { MulterError } from "multer";
 import { Handler } from "express";
-import fs from "fs";
 
 export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(

@@ -31,7 +31,7 @@ export const uploadFile = multer({
     if (!ALLOWED_EXTENSIONS.find((v) => v === ext)) {
       return callback(
         createFieldError(StatusCodes.BAD_REQUEST, {
-          file: "Gambar produk maksimal 5MB.",
+          file: "File harus .png, .jpeg, atau .jpg",
         })
       );
     }
