@@ -279,7 +279,7 @@ export const uploadProductImageHandler = (): Handler => {
       if (error instanceof MulterError) {
         next(
           createFieldError(StatusCodes.BAD_REQUEST, {
-            file: "Gambar produk maksimal 5MB.",
+            fileName: "Gambar produk maksimal 5MB.",
           })
         );
         return;

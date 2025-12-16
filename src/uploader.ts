@@ -31,7 +31,7 @@ export const uploadFile = multer({
     if (!ALLOWED_EXTENSIONS.find((v) => v === ext)) {
       return callback(
         createFieldError(StatusCodes.BAD_REQUEST, {
-          file: "File harus .png, .jpeg, atau .jpg",
+          fileName: "File harus .png, .jpeg, atau .jpg",
         })
       );
     }
