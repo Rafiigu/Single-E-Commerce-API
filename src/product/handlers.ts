@@ -89,6 +89,11 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
                 name: true,
               },
             },
+            productImages: {
+              select: {
+                imageFileName: true,
+              },
+            },
           },
         });
 
@@ -133,7 +138,6 @@ export const createProductHandler: HandlerWithDeps = ({ prisma }) =>
             status: "active",
             price: data.price,
             description: data.description,
-            imageFileName: data.fileName,
             categoryId: data.categoryId,
             stock: 0,
           },
@@ -193,7 +197,6 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
             description: data.description,
             categoryId: data.categoryId,
             stock: 0,
-            imageFileName: data.fileName,
           },
         });
 
@@ -319,7 +322,7 @@ export const uploadProductImageHandler: HandlerWithDeps = ({ prisma }) =>
 
           res.json({
             data: {
-              file: req.files,
+              files: req.files,
             },
           });
         });
