@@ -55,10 +55,16 @@ export const mutateProductBodySchema = z.object({
   name: z
     .string({ required_error: "Nama produk tidak boleh kosong." })
     .min(3, "Nama produk minimal 3 karakter."),
-  price: z.number().nonnegative(),
-  categoryId: z.string({ required_error: "ID wajib ada." }),
+  price: z
+    .number({ required_error: "Harga tidak boleh kosong." })
+    .positive("Harga harus lebih besar dari 0."),
+  categoryId: z
+    .string({ required_error: "ID wajib ada." })
+    .min(1, "Kategori tidak boleh kosong."),
   description: z.string().optional().default(""),
-  fileName: z.string({ required_error: "Gambar produk tidak boleh kosong." }),
+  fileName: z
+    .string({ required_error: "Gambar produk tidak boleh kosong." })
+    .min(1, "Gambar tidak boleh kosong."),
 });
 
 // createProductStockMutationBodySchema
