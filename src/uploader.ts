@@ -38,7 +38,7 @@ export const uploadFile = multer({
 
     return callback(null, true);
   },
-}).single("file");
+}).array("files", 7);
 
 export const getFilePath = (filename: string) => {
   const filePath = path.join(process.cwd(), "data", filename);

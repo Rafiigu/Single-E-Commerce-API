@@ -5,9 +5,13 @@ meta {
 }
 
 post {
-  url: http://localhost:5000/api/product/upload
+  url: http://localhost:5000/api/product/:id/upload
   body: multipartForm
   auth: bearer
+}
+
+params:path {
+  id: a576463b-b625-4af8-a232-d212c5ca88ca
 }
 
 auth:bearer {
@@ -15,5 +19,10 @@ auth:bearer {
 }
 
 body:multipart-form {
-  file: @file(D:\6.jpg)
+  files: @file(D:\Green Field.jpg)
+  files: @file(D:\Jojo.jpg)
+}
+
+vars:pre-request {
+  id: a576463b-b625-4af8-a232-d212c5ca88ca
 }

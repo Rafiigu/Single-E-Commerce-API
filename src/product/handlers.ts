@@ -273,31 +273,61 @@ export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const uploadProductImageHandler = (): Handler => {
-  return (req, res, next) => {
-    uploadFile(req, res, function (error) {
-      if (error instanceof MulterError) {
-        next(
-          createFieldError(StatusCodes.BAD_REQUEST, {
-            file: "Gambar produk maksimal 5MB.",
-          })
-        );
-        return;
-      }
+export const uploadProductImageHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    { paramsSchema: idProductParamsSchema },
+    async (req, res, next) => {
+      try {
+        const product = await prisma.product.findFirst({
+          where: { id: req.params.id },
+        });
 
-      if (error && error instanceof Error) {
+        if (!product) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Produk tidak ditemukan."
+          );
+        }
+        uploadFile(req, res, async function (error) {
+          console.log("Uploaded files:", req.files);
+          if (error instanceof MulterError) {
+            next(
+              createFieldError(StatusCodes.BAD_REQUEST, {
+                file: "Gambar produk maksimal 5MB.",
+              })
+            );
+            return;
+          }
+
+          if (error && error instanceof Error) {
+            next(error);
+            return;
+          }
+
+          const files = req.files as Express.Multer.File[];
+          const productId = req.params.id;
+
+          const imagesData = files.map((file) => ({
+            productId,
+            imageFileName: file.filename,
+            original: file.originalname,
+          }));
+
+          await prisma.productImages.createMany({
+            data: imagesData,
+          });
+
+          res.json({
+            data: {
+              file: req.files,
+            },
+          });
+        });
+      } catch (error) {
         next(error);
-        return;
       }
-
-      res.json({
-        data: {
-          file: req.file,
-        },
-      });
-    });
-  };
-};
+    }
+  );
 
 export const getProductImageHandler = (): Handler =>
   withValidation(
@@ -317,6 +347,33 @@ export const getProductImageHandler = (): Handler =>
         }
 
         res.sendFile(filePath);
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const listProductImagesHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    { paramsSchema: idProductParamsSchema },
+    async (req, res, next) => {
+      try {
+        const productId = req.params.id;
+
+        const productImages = await prisma.productImages.findMany({
+          where: { productId },
+        });
+
+        if (productImages.length === 0) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Tidak ada gambar untuk produk ini."
+          );
+        }
+
+        res.json({
+          data: productImages.map((img) => img.imageFileName),
+        });
       } catch (error) {
         next(error);
       }

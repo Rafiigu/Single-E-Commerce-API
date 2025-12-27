@@ -16,10 +16,14 @@ auth:bearer {
 
 body:json {
   {
-    "name": "Carrot",
-    "price": 20000,
-    "categoryId": "385efdc2-5590-466e-9e05-2fdccfb34d7c",
+    "name": "Green Field 1.5L",
+    "price": 80000,
+    "categoryId": "116b50c2-c431-45d1-96c4-b5c06719154f",
     "description": "Done",
-    "fileName": "9BqsWI8tY7_6.jpg"
+    "fileName": ""
   }
+}
+
+body:multipart-form {
+  File: @file(D:\Green FIeld.jpg)
 }

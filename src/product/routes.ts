@@ -8,6 +8,7 @@ import {
   deactivateProductHandler,
   getProductHandler,
   getProductImageHandler,
+  listProductImagesHandler,
   listProductsHandler,
   updateProductHandler,
   uploadProductImageHandler,
@@ -42,16 +43,14 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   );
 
   router.post(
-    "/upload",
+    "/:id/upload",
     authMiddleware(["admin"]),
-    uploadProductImageHandler()
+    uploadProductImageHandler({ prisma })
   );
 
-  router.get(
-    "/file/:filename",
-    authMiddleware(["admin", "user"]),
-    getProductImageHandler()
-  );
+  router.get("/file/:filename", getProductImageHandler());
+
+  router.get("/file/images/:id", listProductImagesHandler({ prisma }));
 
   router.post(
     "/:id/stock-mutation",
