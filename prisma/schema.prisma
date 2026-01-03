@@ -72,7 +72,6 @@ model Product {
   price              Int
   stock              Int
   description        String
-  imageFileName      String?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   stockMutations     StockMutation[]
