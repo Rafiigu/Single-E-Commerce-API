@@ -52,9 +52,7 @@ export const imageProductParamsSchema = z.object({
 });
 
 export const imagesProductDeleteBodySchema = z.object({
-  filenames: z
-    .array(z.string({ required_error: "Nama file wajib ada." }))
-    .nonempty({ message: "Minimal satu nama file harus diberikan." }),
+  fileNames: z.array(z.string()).optional(),
 });
 
 export const mutateProductBodySchema = z.object({

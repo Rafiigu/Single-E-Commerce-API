@@ -378,10 +378,10 @@ export const deleteProductImageHandler: HandlerWithDeps = ({ prisma }) =>
     },
     async (req, res, next) => {
       try {
-        const filenames = req.body.filenames;
+        const fileNames = req.body.fileNames;
         // Sama aja seperti looping biasa
-        for (const filename of filenames) {
-          const filePath = getFilePath(filename);
+        for (const fileName of fileNames) {
+          const filePath = getFilePath(fileName);
 
           if (filePath && fs.existsSync(filePath)) {
             await fs.promises.unlink(filePath);
@@ -390,7 +390,7 @@ export const deleteProductImageHandler: HandlerWithDeps = ({ prisma }) =>
 
         const deleted = await prisma.productImages.deleteMany({
           where: {
-            imageFileName: { in: filenames },
+            imageFileName: { in: fileNames },
           },
         });
 
@@ -407,7 +407,7 @@ export const deleteProductImageHandler: HandlerWithDeps = ({ prisma }) =>
             message:
               "Semua gambar produk berhasil dihapus dari sistem dan database.",
             deletedCount: deleted.count,
-            filenames,
+            fileNames,
           },
         });
       } catch (error) {
