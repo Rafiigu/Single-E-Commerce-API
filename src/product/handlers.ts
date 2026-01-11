@@ -1,10 +1,12 @@
 import { StatusCodes } from "http-status-codes";
 import { createErrorWithMessage, createFieldError } from "../error";
 import { withValidation } from "../validation";
+import fs from "fs";
 import {
   createProductStockMutationBodySchema,
   idProductParamsSchema,
   imageProductParamsSchema,
+  imagesProductDeleteBodySchema,
   listProductsQuerySchema,
   mutateProductBodySchema,
 } from "./validations";
@@ -30,6 +32,11 @@ export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
               select: {
                 id: true,
                 name: true,
+              },
+            },
+            productImages: {
+              select: {
+                imageFileName: true,
               },
             },
           },
@@ -120,16 +127,21 @@ export const createProductHandler: HandlerWithDeps = ({ prisma }) =>
           where: { id: data.categoryId },
         });
 
+        const errorFields: Record<string, string> = {};
+
         if (!category) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            category: "Kategori tidak ada.",
-          });
+          errorFields.categoryId = "Kategori tidak ada";
         }
 
-        if (!getFilePath(data.fileName)) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            fileName: "File tidak valid.",
-          });
+        for (let i = 0; i < data.fileNames.length; i++) {
+          if (!getFilePath(data.fileNames[i].imageFileName)) {
+            errorFields[`fileNames[${i}].imageFileName`] =
+              "Nama file tidak ada.";
+          }
+        }
+
+        if (Object.keys(errorFields).length > 0) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, errorFields);
         }
 
         const product = await prisma.product.create({
@@ -140,6 +152,14 @@ export const createProductHandler: HandlerWithDeps = ({ prisma }) =>
             description: data.description,
             categoryId: data.categoryId,
             stock: 0,
+            productImages: {
+              create: data.fileNames.map((file: { imageFileName: string }) => ({
+                imageFileName: file.imageFileName,
+              })),
+            },
+          },
+          include: {
+            productImages: true,
           },
         });
 
@@ -177,16 +197,21 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
           where: { id: data.categoryId },
         });
 
+        const errorFields: Record<string, string> = {};
+
         if (!category) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            category: "Kategori tidak ada.",
-          });
+          errorFields.categoryId = "Kategori tidak ada";
         }
 
-        if (!getFilePath(data.fileName)) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            fileName: "File tidak valid.",
-          });
+        for (let i = 0; i < data.fileNames.length; i++) {
+          if (!getFilePath(data.fileNames[i].imageFileName)) {
+            errorFields[`fileNames[${i}].imageFileName`] =
+              "Nama file tidak ada.";
+          }
+        }
+
+        if (Object.keys(errorFields).length > 0) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, errorFields);
         }
 
         const updatedProduct = await prisma.product.update({
@@ -197,6 +222,14 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
             description: data.description,
             categoryId: data.categoryId,
             stock: 0,
+            productImages: {
+              create: data.fileNames.map((file: { imageFileName: string }) => ({
+                imageFileName: file.imageFileName,
+              })),
+            },
+          },
+          include: {
+            productImages: true,
           },
         });
 
@@ -276,61 +309,43 @@ export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const uploadProductImageHandler: HandlerWithDeps = ({ prisma }) =>
-  withValidation(
-    { paramsSchema: idProductParamsSchema },
-    async (req, res, next) => {
-      try {
-        const product = await prisma.product.findFirst({
-          where: { id: req.params.id },
-        });
-
-        if (!product) {
-          throw createErrorWithMessage(
-            StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+export const uploadProductImageHandler =
+  (): Handler => async (req, res, next) => {
+    try {
+      uploadFile(req, res, async function (error) {
+        console.log("Uploaded files:", req.files);
+        if (error instanceof MulterError) {
+          next(
+            createFieldError(StatusCodes.BAD_REQUEST, {
+              file: "Gambar produk maksimal 5MB.",
+            })
           );
+          return;
         }
-        uploadFile(req, res, async function (error) {
-          console.log("Uploaded files:", req.files);
-          if (error instanceof MulterError) {
-            next(
-              createFieldError(StatusCodes.BAD_REQUEST, {
-                file: "Gambar produk maksimal 5MB.",
-              })
-            );
-            return;
-          }
 
-          if (error && error instanceof Error) {
-            next(error);
-            return;
-          }
+        if (error && error instanceof Error) {
+          next(error);
+          return;
+        }
 
-          const files = req.files as Express.Multer.File[];
-          const productId = req.params.id;
+        const files = req.files as Express.Multer.File[];
 
-          const imagesData = files.map((file) => ({
-            productId,
-            imageFileName: file.filename,
-            original: file.originalname,
-          }));
+        const imagesData = files.map((file) => ({
+          imageFileName: file.filename,
+          original: file.originalname,
+        }));
 
-          await prisma.productImages.createMany({
-            data: imagesData,
-          });
-
-          res.json({
-            data: {
-              files: req.files,
-            },
-          });
+        res.json({
+          success: true,
+          data: {
+            files: req.files,
+          },
         });
-      } catch (error) {
-        next(error);
-      }
+      });
+    } catch (error) {
+      next(error);
     }
-  );
+  };
 
 export const getProductImageHandler = (): Handler =>
   withValidation(
@@ -350,6 +365,51 @@ export const getProductImageHandler = (): Handler =>
         }
 
         res.sendFile(filePath);
+      } catch (error) {
+        next(error);
+      }
+    }
+  );
+
+export const deleteProductImageHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      bodySchema: imagesProductDeleteBodySchema,
+    },
+    async (req, res, next) => {
+      try {
+        const filenames = req.body.filenames;
+        // Sama aja seperti looping biasa
+        for (const filename of filenames) {
+          const filePath = getFilePath(filename);
+
+          if (filePath && fs.existsSync(filePath)) {
+            await fs.promises.unlink(filePath);
+          }
+        }
+
+        const deleted = await prisma.productImages.deleteMany({
+          where: {
+            imageFileName: { in: filenames },
+          },
+        });
+
+        if (deleted.count === 0) {
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "Tidak ada record gambar produk ditemukan di database."
+          );
+        }
+
+        res.json({
+          success: true,
+          data: {
+            message:
+              "Semua gambar produk berhasil dihapus dari sistem dan database.",
+            deletedCount: deleted.count,
+            filenames,
+          },
+        });
       } catch (error) {
         next(error);
       }

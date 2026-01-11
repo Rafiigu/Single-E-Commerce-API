@@ -51,6 +51,12 @@ export const imageProductParamsSchema = z.object({
   filename: z.string({ required_error: "Nama file wajib ada." }),
 });
 
+export const imagesProductDeleteBodySchema = z.object({
+  filenames: z
+    .array(z.string({ required_error: "Nama file wajib ada." }))
+    .nonempty({ message: "Minimal satu nama file harus diberikan." }),
+});
+
 export const mutateProductBodySchema = z.object({
   name: z
     .string({ required_error: "Nama produk tidak boleh kosong." })
@@ -62,9 +68,15 @@ export const mutateProductBodySchema = z.object({
     .string({ required_error: "ID wajib ada." })
     .min(1, "Kategori tidak boleh kosong."),
   description: z.string().optional().default(""),
-  fileName: z
-    .string({ required_error: "Gambar produk tidak boleh kosong." })
-    .min(1, "Gambar tidak boleh kosong."),
+  fileNames: z
+    .array(
+      z.object({
+        imageFileName: z
+          .string()
+          .min(1, "Nama file gambar tidak boleh kosong."),
+      })
+    )
+    .optional(),
 });
 
 // createProductStockMutationBodySchema
