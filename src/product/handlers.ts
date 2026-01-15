@@ -12,7 +12,7 @@ import {
 } from "./validations";
 import { HandlerWithDeps } from "../types";
 import { z } from "zod";
-import { getFilePath, uploadFile } from "../uploader";
+import { getFilePath, uploadFiles } from "../uploader";
 import { MulterError } from "multer";
 import { Handler } from "express";
 
@@ -309,10 +309,10 @@ export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
     }
   );
 
-export const uploadProductImageHandler =
+export const uploadProductImagesHandler =
   (): Handler => async (req, res, next) => {
     try {
-      uploadFile(req, res, async function (error) {
+      uploadFiles(req, res, async function (error) {
         console.log("Uploaded files:", req.files);
         if (error instanceof MulterError) {
           next(
@@ -371,7 +371,7 @@ export const getProductImageHandler = (): Handler =>
     }
   );
 
-export const deleteProductImageHandler: HandlerWithDeps = ({ prisma }) =>
+export const deleteProductImagesHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
     {
       bodySchema: imagesProductDeleteBodySchema,

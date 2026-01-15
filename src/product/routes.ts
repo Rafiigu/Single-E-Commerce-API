@@ -6,15 +6,14 @@ import {
   createProductHandler,
   createProductStockMutationHandler,
   deactivateProductHandler,
-  deleteProductImageHandler,
+  deleteProductImagesHandler,
   getProductHandler,
   getProductImageHandler,
   listProductImagesHandler,
   listProductsHandler,
   updateProductHandler,
-  uploadProductImageHandler,
+  uploadProductImagesHandler,
 } from "./handlers";
-import { uploadFile } from "../uploader";
 
 export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
@@ -46,7 +45,7 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   router.post(
     "/upload",
     authMiddleware(["admin"]),
-    uploadProductImageHandler()
+    uploadProductImagesHandler()
   );
 
   router.get("/file/:filename", getProductImageHandler());
@@ -59,7 +58,7 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
     createProductStockMutationHandler({ prisma })
   );
 
-  router.post("/file/delete", deleteProductImageHandler({ prisma }));
+  router.post("/file/delete", deleteProductImagesHandler({ prisma }));
 
   app.use("/product", router);
 };
