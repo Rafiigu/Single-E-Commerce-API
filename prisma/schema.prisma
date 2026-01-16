@@ -85,7 +85,6 @@ model ProductImages {
   productId     String
   product       Product  @relation(fields: [productId], references: [id])
   imageFileName String
-  original      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
