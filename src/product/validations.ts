@@ -77,6 +77,12 @@ export const mutateProductBodySchema = z.object({
     .optional(),
 });
 
+export const createProductBodySchema = mutateProductBodySchema;
+
+export const updateProductBodySchema = mutateProductBodySchema.extend({
+  deletedFileNames: z.array(z.string()).optional(),
+});
+
 // createProductStockMutationBodySchema
 // { quantity, type, notes }
 // quantity: wajib dan positive,

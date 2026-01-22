@@ -2,40 +2,43 @@ import { StatusCodes } from "http-status-codes";
 import { createErrorWithMessage } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
-import { idProductParamsSchema, listWishlistsQuerySchema } from "./validations";
+import {
+  listWishlistsQuerySchema,
+  mutateWishlistParamsSchema,
+} from "./validations";
 import { z } from "zod";
 
 export const createWishlistHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
-    { bodySchema: idProductParamsSchema },
+    { paramsSchema: mutateWishlistParamsSchema },
     async (req, res, next) => {
       try {
         const existingProduct = await prisma.product.findFirst({
-          where: { id: req.body.productId },
+          where: { id: req.params.productId },
         });
 
         if (!existingProduct) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
         const existingWishlist = await prisma.wishlist.findFirst({
-          where: { productId: req.body.productId, userId: req.account.id },
+          where: { productId: req.params.productId, userId: req.account.id },
         });
 
         if (existingWishlist) {
           throw createErrorWithMessage(
             StatusCodes.BAD_REQUEST,
-            "Produk sudah di-wishlist"
+            "Produk sudah di-wishlist",
           );
         }
 
         const wishlist = await prisma.wishlist.create({
           data: {
             userId: req.account.id,
-            productId: req.body.productId,
+            productId: req.params.productId,
           },
         });
 
@@ -46,33 +49,33 @@ export const createWishlistHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const deleteWishlistHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
-    { bodySchema: idProductParamsSchema },
+    { paramsSchema: mutateWishlistParamsSchema },
     async (req, res, next) => {
       try {
         const existingProduct = await prisma.product.findFirst({
-          where: { id: req.body.productId },
+          where: { id: req.params.productId },
         });
 
         if (!existingProduct) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
         const existingWishlist = await prisma.wishlist.findFirst({
-          where: { userId: req.account.id, productId: req.body.productId },
+          where: { userId: req.account.id, productId: req.params.productId },
         });
 
         if (!existingWishlist) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "wishlist tidak ditemukan."
+            "wishlist tidak ditemukan.",
           );
         }
 
@@ -85,7 +88,7 @@ export const deleteWishlistHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const listWishlistsHandler: HandlerWithDeps = ({ prisma }) =>
@@ -144,12 +147,12 @@ export const listWishlistsHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const getWishlistHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
-    { paramsSchema: idProductParamsSchema },
+    { paramsSchema: mutateWishlistParamsSchema },
     async (req, res, next) => {
       try {
         const existingProduct = await prisma.product.findFirst({
@@ -159,7 +162,7 @@ export const getWishlistHandler: HandlerWithDeps = ({ prisma }) =>
         if (!existingProduct) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
@@ -178,5 +181,5 @@ export const getWishlistHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );

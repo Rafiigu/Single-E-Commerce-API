@@ -6,7 +6,6 @@ import {
   createProductHandler,
   createProductStockMutationHandler,
   deactivateProductHandler,
-  deleteProductImagesHandler,
   getProductHandler,
   getProductImageHandler,
   listProductImagesHandler,
@@ -27,25 +26,25 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   router.put(
     "/:id",
     authMiddleware(["admin"]),
-    updateProductHandler({ prisma })
+    updateProductHandler({ prisma }),
   );
 
   router.patch(
     "/:id/activate",
     authMiddleware(["admin"]),
-    activateProductHandler({ prisma })
+    activateProductHandler({ prisma }),
   );
 
   router.patch(
     "/:id/deactivate",
     authMiddleware(["admin"]),
-    deactivateProductHandler({ prisma })
+    deactivateProductHandler({ prisma }),
   );
 
   router.post(
     "/upload",
     authMiddleware(["admin"]),
-    uploadProductImagesHandler()
+    uploadProductImagesHandler(),
   );
 
   router.get("/file/:filename", getProductImageHandler());
@@ -55,10 +54,8 @@ export const setupProductRoutes: SetupRoutes = (app, { prisma }) => {
   router.post(
     "/:id/stock-mutation",
     authMiddleware(["admin"]),
-    createProductStockMutationHandler({ prisma })
+    createProductStockMutationHandler({ prisma }),
   );
-
-  router.post("/file/delete", deleteProductImagesHandler({ prisma }));
 
   app.use("/product", router);
 };

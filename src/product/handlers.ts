@@ -9,12 +9,14 @@ import {
   imagesProductDeleteBodySchema,
   listProductsQuerySchema,
   mutateProductBodySchema,
+  updateProductBodySchema,
 } from "./validations";
 import { HandlerWithDeps } from "../types";
 import { z } from "zod";
 import { getFilePath, uploadFiles } from "../uploader";
 import { MulterError } from "multer";
 import { Handler } from "express";
+import { get } from "http";
 
 export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -22,6 +24,7 @@ export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
     async (req, res, next) => {
       const id = req.params.id;
       try {
+        console.log("test");
         const product = await prisma.product.findFirst({
           where: { id: id },
           omit: {
@@ -45,7 +48,7 @@ export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
         if (!product) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
@@ -56,7 +59,7 @@ export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
@@ -64,6 +67,7 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
     { querySchema: listProductsQuerySchema },
     async (req, res, next) => {
       try {
+        const user = req.account?.id;
         // Infert the parsedQuery type based on the querySchema.
         const { search, status, categoryId, mode, page, size } =
           req.parsedQuery as unknown as z.infer<typeof listProductsQuerySchema>;
@@ -101,6 +105,11 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
                 imageFileName: true,
               },
             },
+            wishlists: user
+              ? {
+                  where: { userId: user },
+                }
+              : undefined,
           },
         });
 
@@ -114,7 +123,7 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const createProductHandler: HandlerWithDeps = ({ prisma }) =>
@@ -170,13 +179,13 @@ export const createProductHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
     {
-      bodySchema: mutateProductBodySchema,
+      bodySchema: updateProductBodySchema,
       paramsSchema: idProductParamsSchema,
     },
     async (req, res, next) => {
@@ -189,7 +198,7 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
         if (!product) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ada."
+            "Produk tidak ada.",
           );
         }
 
@@ -203,34 +212,75 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
           errorFields.categoryId = "Kategori tidak ada";
         }
 
-        for (let i = 0; i < data.fileNames.length; i++) {
-          if (!getFilePath(data.fileNames[i].imageFileName)) {
-            errorFields[`fileNames[${i}].imageFileName`] =
-              "Nama file tidak ada.";
+        if (data.fileNames.length !== 0) {
+          for (let i = 0; i < data.fileNames.length; i++) {
+            if (!getFilePath(data.fileNames[i].imageFileName)) {
+              errorFields[`fileNames[${i}].imageFileName`] =
+                "Nama file tidak ada.";
+            }
           }
         }
 
-        if (Object.keys(errorFields).length > 0) {
-          throw createFieldError(StatusCodes.BAD_REQUEST, errorFields);
-        }
+        const fileNames = data.deletedFileNames || [];
 
-        const updatedProduct = await prisma.product.update({
-          where: { id: req.params.id },
-          data: {
-            name: data.name,
-            price: data.price,
-            description: data.description,
-            categoryId: data.categoryId,
-            stock: 0,
-            productImages: {
-              create: data.fileNames.map((file: { imageFileName: string }) => ({
-                imageFileName: file.imageFileName,
-              })),
+        const updatedProduct = await prisma.$transaction(async (tx) => {
+          if (fileNames.length > 0) {
+            const existingImages = await tx.productImages.findMany({
+              where: {
+                productId: req.params.id,
+                imageFileName: { in: fileNames },
+              },
+              select: { imageFileName: true },
+            });
+
+            const existingNames = existingImages.map(
+              (img) => img.imageFileName,
+            );
+            const notFound = fileNames.filter(
+              (name: string) => !existingNames.includes(name),
+            );
+
+            if (notFound.length > 0) {
+              notFound.forEach((name: string, idx: number) => {
+                errorFields[`deletedFileNames.${idx}`] =
+                  `Gambar dengan nama ${name} tidak ditemukan`;
+              });
+            }
+          }
+
+          if (Object.keys(errorFields).length > 0) {
+            throw createFieldError(StatusCodes.BAD_REQUEST, errorFields);
+          }
+
+          for (const fileName of fileNames) {
+            const filePath = getFilePath(fileName);
+            if (filePath && fs.existsSync(filePath)) {
+              await fs.promises.unlink(filePath);
+            }
+          }
+
+          return tx.product.update({
+            where: { id: req.params.id },
+            data: {
+              name: data.name,
+              price: data.price,
+              description: data.description,
+              categoryId: data.categoryId,
+              stock: 0,
+              productImages: {
+                create: data.fileNames.map(
+                  (file: { imageFileName: string }) => ({
+                    imageFileName: file.imageFileName,
+                  }),
+                ),
+                deleteMany:
+                  fileNames.length > 0
+                    ? { imageFileName: { in: fileNames } }
+                    : undefined,
+              },
             },
-          },
-          include: {
-            productImages: true,
-          },
+            include: { productImages: true },
+          });
         });
 
         res.json({
@@ -240,7 +290,7 @@ export const updateProductHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const activateProductHandler: HandlerWithDeps = ({ prisma }) =>
@@ -255,7 +305,7 @@ export const activateProductHandler: HandlerWithDeps = ({ prisma }) =>
         if (!product) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
@@ -273,7 +323,7 @@ export const activateProductHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
@@ -288,7 +338,7 @@ export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
         if (!product) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
@@ -306,7 +356,7 @@ export const deactivateProductHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const uploadProductImagesHandler =
@@ -318,7 +368,7 @@ export const uploadProductImagesHandler =
           next(
             createFieldError(StatusCodes.BAD_REQUEST, {
               file: "Gambar produk maksimal 5MB.",
-            })
+            }),
           );
           return;
         }
@@ -360,7 +410,7 @@ export const getProductImageHandler = (): Handler =>
         if (!filePath) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Gambar produk tidak ditemukan."
+            "Gambar produk tidak ditemukan.",
           );
         }
 
@@ -368,52 +418,7 @@ export const getProductImageHandler = (): Handler =>
       } catch (error) {
         next(error);
       }
-    }
-  );
-
-export const deleteProductImagesHandler: HandlerWithDeps = ({ prisma }) =>
-  withValidation(
-    {
-      bodySchema: imagesProductDeleteBodySchema,
     },
-    async (req, res, next) => {
-      try {
-        const fileNames = req.body.fileNames;
-        // Sama aja seperti looping biasa
-        for (const fileName of fileNames) {
-          const filePath = getFilePath(fileName);
-
-          if (filePath && fs.existsSync(filePath)) {
-            await fs.promises.unlink(filePath);
-          }
-        }
-
-        const deleted = await prisma.productImages.deleteMany({
-          where: {
-            imageFileName: { in: fileNames },
-          },
-        });
-
-        if (deleted.count === 0) {
-          throw createErrorWithMessage(
-            StatusCodes.NOT_FOUND,
-            "Tidak ada record gambar produk ditemukan di database."
-          );
-        }
-
-        res.json({
-          success: true,
-          data: {
-            message:
-              "Semua gambar produk berhasil dihapus dari sistem dan database.",
-            deletedCount: deleted.count,
-            fileNames,
-          },
-        });
-      } catch (error) {
-        next(error);
-      }
-    }
   );
 
 export const listProductImagesHandler: HandlerWithDeps = ({ prisma }) =>
@@ -430,7 +435,7 @@ export const listProductImagesHandler: HandlerWithDeps = ({ prisma }) =>
         if (productImages.length === 0) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Tidak ada gambar untuk produk ini."
+            "Tidak ada gambar untuk produk ini.",
           );
         }
 
@@ -440,7 +445,7 @@ export const listProductImagesHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const createProductStockMutationHandler: HandlerWithDeps = ({
@@ -463,7 +468,7 @@ export const createProductStockMutationHandler: HandlerWithDeps = ({
         if (!product) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Produk tidak ditemukan."
+            "Produk tidak ditemukan.",
           );
         }
 
@@ -505,5 +510,5 @@ export const createProductStockMutationHandler: HandlerWithDeps = ({
       } catch (error) {
         next(error);
       }
-    }
+    },
   );

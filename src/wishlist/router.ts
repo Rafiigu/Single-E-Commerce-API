@@ -12,27 +12,27 @@ export const setUpWishlistRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
   router.post(
-    "/wishlist",
+    "/wishlist/:productId",
     authMiddleware(["user"], true),
-    createWishlistHandler({ prisma })
+    createWishlistHandler({ prisma }),
   );
 
   router.post(
-    "/unwishlist",
+    "/unwishlist/:productId",
     authMiddleware(["user"], true),
-    deleteWishlistHandler({ prisma })
+    deleteWishlistHandler({ prisma }),
   );
 
   router.get(
     "/wishlist",
     authMiddleware(["user"], true),
-    listWishlistsHandler({ prisma })
+    listWishlistsHandler({ prisma }),
   );
 
   router.get(
     "/wishlist/:productId/check",
     authMiddleware(["user"], true),
-    getWishlistHandler({ prisma })
+    getWishlistHandler({ prisma }),
   );
 
   app.use(router);
