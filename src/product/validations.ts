@@ -41,6 +41,7 @@ export const listProductsQuerySchema = z.object({
     })
     .default("all"),
   categoryId: z.string().optional().default("all"),
+  includeWishlist: z.coerce.number().optional().default(0),
 });
 
 export const idProductParamsSchema = z.object({
@@ -72,7 +73,7 @@ export const mutateProductBodySchema = z.object({
         imageFileName: z
           .string()
           .min(1, "Nama file gambar tidak boleh kosong."),
-      })
+      }),
     )
     .optional(),
 });

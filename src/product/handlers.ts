@@ -67,10 +67,18 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
     { querySchema: listProductsQuerySchema },
     async (req, res, next) => {
       try {
-        const user = req.account?.id;
         // Infert the parsedQuery type based on the querySchema.
-        const { search, status, categoryId, mode, page, size } =
-          req.parsedQuery as unknown as z.infer<typeof listProductsQuerySchema>;
+        const {
+          search,
+          status,
+          categoryId,
+          mode,
+          page,
+          size,
+          includeWishlist,
+        } = req.parsedQuery as unknown as z.infer<
+          typeof listProductsQuerySchema
+        >;
 
         const where = {
           name: search
@@ -105,13 +113,20 @@ export const listProductsHandler: HandlerWithDeps = ({ prisma }) =>
                 imageFileName: true,
               },
             },
-            wishlists: user
+            ...(includeWishlist === 1
               ? {
-                  where: { userId: user },
+                  wishlists: {
+                    select: {
+                      userId: true,
+                      productId: true,
+                    },
+                  },
                 }
-              : undefined,
+              : {}),
           },
         });
+
+        console.log(listProducts);
 
         const total = await prisma.product.count({ where });
 
