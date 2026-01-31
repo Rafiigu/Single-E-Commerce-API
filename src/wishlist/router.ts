@@ -11,13 +11,13 @@ import {
 export const setUpWishlistRoutes: SetupRoutes = (app, { prisma }) => {
   const router = express.Router();
 
-  router.post(
+  router.get(
     "/wishlist/:productId",
     authMiddleware(["user"], true),
     createWishlistHandler({ prisma }),
   );
 
-  router.post(
+  router.get(
     "/unwishlist/:productId",
     authMiddleware(["user"], true),
     deleteWishlistHandler({ prisma }),

@@ -125,16 +125,24 @@ export const listCartItemsHandler: HandlerWithDeps = ({ prisma }) =>
               }
             : {}),
           where: { userId },
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+                productImages: true,
+              },
+            },
+          },
         });
 
         const total = await prisma.cartItem.count({ where: { userId } });
 
         res.json({
           success: true,
-          data: {
-            items: cartItems,
-            total,
-          },
+          data: cartItems,
+          total,
         });
       } catch (error) {
         next(error);
