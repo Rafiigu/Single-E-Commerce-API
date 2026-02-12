@@ -110,7 +110,6 @@ model PaymentTerm {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   paymentAccounts PaymentAccount[]
-  topUps          TopUp[]
 }
 
 model PaymentAccount {
@@ -142,14 +141,12 @@ model TopUp {
   admin                   Admin?         @relation(fields: [adminId], references: [id])
   userId                  String
   user                    User           @relation(fields: [userId], references: [id])
-  proofOfTransferFileName String
+  proofOfTransferFileName String?
   status                  String
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   paymentAccountId        String
   PaymentAccount          PaymentAccount @relation(fields: [paymentAccountId], references: [id])
-  paymentTermId           String
-  paymentTerm             PaymentTerm    @relation(fields: [paymentTermId], references: [id])
 }
 
 model Transaction {

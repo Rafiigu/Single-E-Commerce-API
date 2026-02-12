@@ -6,7 +6,6 @@ import {
   createProductStockMutationBodySchema,
   idProductParamsSchema,
   imageProductParamsSchema,
-  imagesProductDeleteBodySchema,
   listProductsQuerySchema,
   mutateProductBodySchema,
   updateProductBodySchema,
@@ -16,7 +15,6 @@ import { z } from "zod";
 import { getFilePath, uploadFiles } from "../uploader";
 import { MulterError } from "multer";
 import { Handler } from "express";
-import { get } from "http";
 
 export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
@@ -26,7 +24,7 @@ export const getProductHandler: HandlerWithDeps = ({ prisma }) =>
       try {
         console.log("test");
         const product = await prisma.product.findFirst({
-          where: { id: id },
+          where: { id },
           omit: {
             categoryId: true,
           },

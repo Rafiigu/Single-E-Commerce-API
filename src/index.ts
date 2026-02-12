@@ -14,6 +14,7 @@ import { setUpPaymentAccountRoutes } from "./paymentAccount/routes";
 import { setUpWishlistRoutes } from "./wishlist/router";
 import { setupUserRoutes } from "./user/routes";
 import { setUpCartRoutes } from "./cart/routes";
+import { setUpTopUpRoutes } from "./top-up/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -35,6 +36,7 @@ setUpPaymentAccountRoutes(router, { prisma });
 setUpWishlistRoutes(router, { prisma });
 setupUserRoutes(router, { prisma });
 setUpCartRoutes(router, { prisma });
+setUpTopUpRoutes(router, { prisma });
 
 app.use("/api", router);
 
