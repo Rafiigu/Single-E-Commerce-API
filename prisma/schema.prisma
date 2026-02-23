@@ -38,7 +38,7 @@ model User {
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
   wishlists              Wishlist[]
-  topUp                  TopUp[]
+  topUps                 TopUp[]
   transactions           Transaction[]
   userVerificationTokens UserVerificationToken[]
   cartItems              CartItem[]
@@ -146,7 +146,7 @@ model TopUp {
   createdAt               DateTime       @default(now())
   updatedAt               DateTime       @updatedAt
   paymentAccountId        String
-  PaymentAccount          PaymentAccount @relation(fields: [paymentAccountId], references: [id])
+  paymentAccount          PaymentAccount @relation(fields: [paymentAccountId], references: [id])
 }
 
 model Transaction {
