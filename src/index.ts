@@ -14,7 +14,7 @@ import { setUpPaymentAccountRoutes } from "./paymentAccount/routes";
 import { setUpWishlistRoutes } from "./wishlist/routes";
 import { setupUserRoutes } from "./user/routes";
 import { setUpCartRoutes } from "./cart/routes";
-import { setUpTopUpRoutes } from "./top-up/routes";
+import { setUpTopUpRoutes } from "./topUp/routes";
 
 const PORT = ENV.PORT;
 const app = express();

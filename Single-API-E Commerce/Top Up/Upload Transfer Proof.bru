@@ -1,0 +1,31 @@
+meta {
+  name: Upload Transfer Proof
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:5000/api/top-up/:id/upload-transfer-proof/image
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  id: 300b69d8-0683-4b01-879a-68487dfc52b9
+}
+
+body:json {
+  {
+    "paymentAccountId": "827373ae-b015-4925-8cdf-84e81bb5296c",
+    "nominal": 1000000
+  }
+}
+
+body:multipart-form {
+  files: @file(C:\Users\Latitude\Downloads\nemoclaw.jpg)
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

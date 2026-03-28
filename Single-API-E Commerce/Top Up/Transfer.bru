@@ -1,0 +1,26 @@
+meta {
+  name: Transfer
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:5000/api/top-up/:id/upload-transfer-proof
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 300b69d8-0683-4b01-879a-68487dfc52b9
+}
+
+body:json {
+  {
+    "transferProofFileName": "cDtKPV1JE__nemoclaw.jpg"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
