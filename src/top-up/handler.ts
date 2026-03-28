@@ -37,7 +37,7 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
           omit: { paymentAccountId: true },
           orderBy: { createdAt: "desc" },
           include: {
-            PaymentAccount: {
+            paymentAccount: {
               select: {
                 id: true,
                 accountHolderName: true,
@@ -63,8 +63,6 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
           },
         });
 
-        console.log(listTopUps);
-
         const total = await prisma.topUp.count({ where });
 
         res.json({
@@ -88,7 +86,7 @@ export const getTopUpHandler: HandlerWithDeps = ({ prisma }) =>
           where: { id },
           omit: { paymentAccountId: true },
           include: {
-            PaymentAccount: {
+            paymentAccount: {
               select: {
                 id: true,
                 accountHolderName: true,
@@ -111,10 +109,10 @@ export const getTopUpHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
-        if (topUp.userId !== req.account.id) {
+        if (req.account.role === "user" && topUp.userId !== req.account.id) {
           throw createErrorWithMessage(
             StatusCodes.FORBIDDEN,
-            "Anda tidak memiliki akses ke Top Up ini.",
+            "Anda tidak memiliki akses ke top up ini.",
           );
         }
 
@@ -139,11 +137,16 @@ export const createTopUpHandler: HandlerWithDeps = ({ prisma }) =>
         const existingTopUp = await prisma.topUp.findFirst({
           where: { userId, status: "requested" },
         });
+        if (existingTopUp) {
+          throw createErrorWithMessage(
+            StatusCodes.BAD_REQUEST,
+            "User sudah memiliki 1 request top up.",
+          );
+        }
 
         const existingPaymentAccount = await prisma.paymentAccount.findUnique({
           where: { id: data.paymentAccountId },
         });
-
         if (
           !existingPaymentAccount ||
           existingPaymentAccount.status !== "active"
@@ -153,14 +156,7 @@ export const createTopUpHandler: HandlerWithDeps = ({ prisma }) =>
           });
         }
 
-        if (existingTopUp) {
-          throw createErrorWithMessage(
-            StatusCodes.BAD_REQUEST,
-            "User sudah memiliki 1 request Top Up",
-          );
-        }
-
-        const datum = await prisma.topUp.create({
+        const topUp = await prisma.topUp.create({
           data: {
             nominal: data.nominal,
             paymentAccountId: data.paymentAccountId,
@@ -171,7 +167,7 @@ export const createTopUpHandler: HandlerWithDeps = ({ prisma }) =>
 
         res.json({
           success: true,
-          data: datum,
+          data: topUp,
         });
       } catch (error) {
         next(error);
@@ -275,7 +271,7 @@ export const rejectTopUpHandler: HandlerWithDeps = ({ prisma }) =>
     },
   );
 
-export const transferProofTopUpHandler: HandlerWithDeps = ({ prisma }) =>
+export const transferTopUpProofHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
     { bodySchema: transferProofBodySchema },
     async (req, res, next) => {

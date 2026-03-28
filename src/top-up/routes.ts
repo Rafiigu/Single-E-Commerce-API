@@ -4,7 +4,7 @@ import express from "express";
 import {
   createTopUpHandler,
   uploadTransferProofImageHandler,
-  transferProofTopUpHandler,
+  transferTopUpProofHandler,
   cancelTopUpHandler,
   listTopUpsHandler,
   getTopUpHandler,
@@ -20,34 +20,37 @@ export const setUpTopUpRoutes: SetupRoutes = (app, { prisma }) => {
     authMiddleware(["user", "admin"]),
     listTopUpsHandler({ prisma }),
   );
-
-  router.get("/:id", authMiddleware(["user"]), getTopUpHandler({ prisma }));
-
+  router.get(
+    "/:id",
+    authMiddleware(["user", "admin"]),
+    getTopUpHandler({ prisma }),
+  );
   router.post("/", authMiddleware(["user"]), createTopUpHandler({ prisma }));
-
   router.patch(
     "/:id/approve",
     authMiddleware(["admin"]),
     approveTopUpHandler({ prisma }),
   );
-
   router.patch(
     "/:id/reject",
     authMiddleware(["admin"]),
     rejectTopUpHandler({ prisma }),
   );
-
   router.post(
-    "/upload-transfer-proof",
+    "/:id/upload-transfer-proof/image",
     authMiddleware(["user"]),
-    uploadTransferProofImageHandler(),
+    uploadTopUpTransferProofImageHandler(),
   );
   router.patch(
-    "/transfer-proof",
+    "/:id/upload-transfer-proof",
     authMiddleware(["user"]),
-    transferProofTopUpHandler({ prisma }),
+    uploadTopUpTransferProofHandler({ prisma }),
   );
-  router.patch("/", authMiddleware(["user"]), cancelTopUpHandler({ prisma }));
+  router.patch(
+    "/:id/cancel",
+    authMiddleware(["user"]),
+    cancelTopUpHandler({ prisma }),
+  );
 
   app.use("/top-up", router);
 };
