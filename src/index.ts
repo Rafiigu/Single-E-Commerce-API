@@ -11,7 +11,7 @@ import { setupCategoryRoutes } from "./category/routes";
 import { setupProductRoutes } from "./product/routes";
 import { setupPaymentTermRoutes } from "./paymentTerm/routes";
 import { setUpPaymentAccountRoutes } from "./paymentAccount/routes";
-import { setUpWishlistRoutes } from "./wishlist/router";
+import { setUpWishlistRoutes } from "./wishlist/routes";
 import { setupUserRoutes } from "./user/routes";
 import { setUpCartRoutes } from "./cart/routes";
 import { setUpTopUpRoutes } from "./top-up/routes";

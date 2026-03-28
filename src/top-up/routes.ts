@@ -39,12 +39,12 @@ export const setUpTopUpRoutes: SetupRoutes = (app, { prisma }) => {
   router.post(
     "/:id/upload-transfer-proof/image",
     authMiddleware(["user"]),
-    uploadTopUpTransferProofImageHandler(),
+    uploadTransferProofImageHandler(),
   );
-  router.patch(
+  router.post(
     "/:id/upload-transfer-proof",
     authMiddleware(["user"]),
-    uploadTopUpTransferProofHandler({ prisma }),
+    transferTopUpProofHandler({ prisma }),
   );
   router.patch(
     "/:id/cancel",
