@@ -37,7 +37,7 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
           omit: { paymentAccountId: true },
           orderBy: { createdAt: "desc" },
           include: {
-            PaymentAccount: {
+            paymentAccount: {
               select: {
                 id: true,
                 accountHolderName: true,
@@ -86,7 +86,7 @@ export const getTopUpHandler: HandlerWithDeps = ({ prisma }) =>
           where: { id },
           omit: { paymentAccountId: true },
           include: {
-            PaymentAccount: {
+            paymentAccount: {
               select: {
                 id: true,
                 accountHolderName: true,

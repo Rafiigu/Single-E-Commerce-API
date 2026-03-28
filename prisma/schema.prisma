@@ -135,25 +135,18 @@ model Wishlist {
 }
 
 model TopUp {
-  id                      String         @id @default(uuid())
+  id                      String          @id @default(uuid())
   nominal                 Int
   adminId                 String?
-  admin                   Admin?         @relation(fields: [adminId], references: [id])
+  admin                   Admin?          @relation(fields: [adminId], references: [id])
   userId                  String
-  user                    User           @relation(fields: [userId], references: [id])
+  user                    User            @relation(fields: [userId], references: [id])
   proofOfTransferFileName String?
   status                  String
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-<<<<<<< Updated upstream
-  paymentAccountId        String
-  paymentAccount          PaymentAccount @relation(fields: [paymentAccountId], references: [id])
-=======
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
   paymentAccountId        String?
-  PaymentAccount          PaymentAccount? @relation(fields: [paymentAccountId], references: [id])
-  paymentTermId           String
-  paymentTerm             PaymentTerm    @relation(fields: [paymentTermId], references: [id])
->>>>>>> Stashed changes
+  paymentAccount          PaymentAccount? @relation(fields: [paymentAccountId], references: [id])
 }
 
 model Transaction {
