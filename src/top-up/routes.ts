@@ -26,13 +26,13 @@ export const setUpTopUpRoutes: SetupRoutes = (app, { prisma }) => {
   router.post("/", authMiddleware(["user"]), createTopUpHandler({ prisma }));
 
   router.patch(
-    "/approve/:id",
+    "/:id/approve",
     authMiddleware(["admin"]),
     approveTopUpHandler({ prisma }),
   );
 
   router.patch(
-    "/reject/:id",
+    "/:id/reject",
     authMiddleware(["admin"]),
     rejectTopUpHandler({ prisma }),
   );

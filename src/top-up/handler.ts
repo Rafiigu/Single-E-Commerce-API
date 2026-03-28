@@ -23,7 +23,7 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
 
         const where = {
           status: status !== "all" ? status : undefined,
-          userId: req.account.id,
+          userId: req.account.role === "user" ? req.account.id : undefined,
         };
 
         const listTopUps = await prisma.topUp.findMany({
@@ -35,6 +35,7 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
             : {}),
           where,
           omit: { paymentAccountId: true },
+          orderBy: { createdAt: "desc" },
           include: {
             PaymentAccount: {
               select: {
@@ -47,6 +48,16 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
                     name: true,
                   },
                 },
+              },
+            },
+            user: {
+              select: {
+                name: true,
+              },
+            },
+            admin: {
+              select: {
+                name: true,
               },
             },
           },
