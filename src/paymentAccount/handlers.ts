@@ -33,7 +33,7 @@ export const getPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentAccount) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Akun pembayaran tidak ditemukan."
+            "Akun pembayaran tidak ditemukan.",
           );
         }
 
@@ -44,7 +44,7 @@ export const getPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const listPaymentAccountsHandler: HandlerWithDeps = ({ prisma }) =>
@@ -109,7 +109,7 @@ export const listPaymentAccountsHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const createPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
@@ -125,8 +125,21 @@ export const createPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Cara pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan.",
           );
+        }
+
+        const existingPaymentTerm = await prisma.paymentAccount.findFirst({
+          where: {
+            paymentTermId: data.paymentTermId,
+          },
+        });
+
+        if (existingPaymentTerm) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            paymentTermId:
+              "Sudah ada akun pembayaran yang menggunakan tipe pembayaran ini.",
+          });
         }
 
         const existingPaymentAccount = await prisma.paymentAccount.findFirst({
@@ -156,7 +169,7 @@ export const createPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const updatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
@@ -172,10 +185,12 @@ export const updatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
           where: { id: req.params.id },
         });
 
+        console.log(data);
+
         if (!existingPaymentAccount) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Akun pembayaran tidak ditemukan"
+            "Akun pembayaran tidak ditemukan",
           );
         }
 
@@ -186,8 +201,24 @@ export const updatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Cara pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan.",
           );
+        }
+
+        const existingPaymentTerm = await prisma.paymentAccount.findFirst({
+          where: {
+            paymentTermId: data.paymentTermId,
+          },
+        });
+
+        if (
+          existingPaymentTerm &&
+          data.paymentTermId !== existingPaymentAccount.paymentTermId
+        ) {
+          throw createFieldError(StatusCodes.BAD_REQUEST, {
+            paymentTermId:
+              "Sudah ada akun pembayaran yang menggunakan tipe pembayaran ini.",
+          });
         }
 
         const paymentAccount = await prisma.paymentAccount.findFirst({
@@ -216,7 +247,7 @@ export const updatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const activatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
@@ -232,7 +263,7 @@ export const activatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
         if (!existingPaymentAccount) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Akun pembayaran tidak ditemukan"
+            "Akun pembayaran tidak ditemukan",
           );
         }
 
@@ -250,7 +281,7 @@ export const activatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const deactivatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
@@ -266,7 +297,7 @@ export const deactivatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
         if (!existingPaymentAccount) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Akun pembayaran tidak ditemukan"
+            "Akun pembayaran tidak ditemukan",
           );
         }
 
@@ -284,5 +315,5 @@ export const deactivatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
