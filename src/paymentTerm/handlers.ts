@@ -17,12 +17,20 @@ export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
       try {
         const paymentTerm = await prisma.paymentTerm.findFirst({
           where: { id: id },
+          include: {
+            paymentAccounts: {
+              select: {
+                id: true,
+                accountNumber: true,
+              },
+            },
+          },
         });
 
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Cara pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan.",
           );
         }
 
@@ -33,7 +41,7 @@ export const getPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const listPaymentTermsHandler: HandlerWithDeps = ({ prisma }) =>
@@ -63,6 +71,14 @@ export const listPaymentTermsHandler: HandlerWithDeps = ({ prisma }) =>
               }
             : {}),
           where,
+          include: {
+            paymentAccounts: {
+              select: {
+                id: true,
+                accountNumber: true,
+              },
+            },
+          },
         });
 
         const total = await prisma.paymentTerm.count({ where });
@@ -75,7 +91,7 @@ export const listPaymentTermsHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const createPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
@@ -108,7 +124,7 @@ export const createPaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const updatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
@@ -128,7 +144,7 @@ export const updatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!existingPaymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Cara pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan.",
           );
         }
 
@@ -156,7 +172,7 @@ export const updatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const activatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
@@ -171,7 +187,7 @@ export const activatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Cara pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan.",
           );
         }
 
@@ -189,7 +205,7 @@ export const activatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
 
 export const deactivatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
@@ -204,7 +220,7 @@ export const deactivatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
         if (!paymentTerm) {
           throw createErrorWithMessage(
             StatusCodes.NOT_FOUND,
-            "Cara pembayaran tidak ditemukan."
+            "Cara pembayaran tidak ditemukan.",
           );
         }
 
@@ -222,5 +238,5 @@ export const deactivatePaymentTermHandler: HandlerWithDeps = ({ prisma }) =>
       } catch (error) {
         next(error);
       }
-    }
+    },
   );
