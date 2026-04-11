@@ -129,13 +129,14 @@ export const createPaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
-        const existingPaymentTerm = await prisma.paymentAccount.findFirst({
-          where: {
-            paymentTermId: data.paymentTermId,
-          },
-        });
+        const existingPaymentAccountByPaymentTerm =
+          await prisma.paymentAccount.findFirst({
+            where: {
+              paymentTermId: data.paymentTermId,
+            },
+          });
 
-        if (existingPaymentTerm) {
+        if (existingPaymentAccountByPaymentTerm) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
             paymentTermId:
               "Sudah ada akun pembayaran yang menggunakan tipe pembayaran ini.",
@@ -205,14 +206,15 @@ export const updatePaymentAccountHandler: HandlerWithDeps = ({ prisma }) =>
           );
         }
 
-        const existingPaymentTerm = await prisma.paymentAccount.findFirst({
-          where: {
-            paymentTermId: data.paymentTermId,
-          },
-        });
+        const existingPaymentAccountByPaymentTerm =
+          await prisma.paymentAccount.findFirst({
+            where: {
+              paymentTermId: data.paymentTermId,
+            },
+          });
 
         if (
-          existingPaymentTerm &&
+          existingPaymentAccountByPaymentTerm &&
           data.paymentTermId !== existingPaymentAccount.paymentTermId
         ) {
           throw createFieldError(StatusCodes.BAD_REQUEST, {
