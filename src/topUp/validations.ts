@@ -43,6 +43,8 @@ export const listTopUpsQuerySchema = z.object({
       },
     )
     .default("all"),
+  dateFrom: z.coerce.date().optional(),
+  dateTo: z.coerce.date().optional(),
 });
 
 export const createTopUpBodySchema = z.object({

@@ -9,7 +9,7 @@ import {
   transferProofBodySchema,
 } from "./validations";
 import { getFilePath, uploadFiles } from "../uploader";
-import { Handler } from "express";
+import e, { Handler } from "express";
 import { MulterError } from "multer";
 import { z } from "zod";
 
@@ -18,12 +18,17 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
     { querySchema: listTopUpsQuerySchema },
     async (req, res, next) => {
       try {
-        const { status, mode, page, size } =
+        const { status, mode, page, size, dateFrom, dateTo } =
           req.parsedQuery as unknown as z.infer<typeof listTopUpsQuerySchema>;
 
+        console.log(typeof dateFrom, typeof dateTo, dateFrom, dateTo);
         const where = {
           status: status !== "all" ? status : undefined,
           userId: req.account.role === "user" ? req.account.id : undefined,
+          createdAt: {
+            gte: dateFrom,
+            lte: dateTo,
+          },
         };
 
         const listTopUps = await prisma.topUp.findMany({
@@ -147,6 +152,7 @@ export const createTopUpHandler: HandlerWithDeps = ({ prisma }) =>
         const existingPaymentAccount = await prisma.paymentAccount.findUnique({
           where: { id: data.paymentAccountId },
         });
+        console.log(existingPaymentAccount);
         if (
           !existingPaymentAccount ||
           existingPaymentAccount.status !== "active"
