@@ -18,16 +18,16 @@ export const listTopUpsHandler: HandlerWithDeps = ({ prisma }) =>
     { querySchema: listTopUpsQuerySchema },
     async (req, res, next) => {
       try {
-        const { status, mode, page, size, dateFrom, dateTo } =
+        const { status, mode, page, size, startDate, endDate } =
           req.parsedQuery as unknown as z.infer<typeof listTopUpsQuerySchema>;
 
-        console.log(typeof dateFrom, typeof dateTo, dateFrom, dateTo);
+        console.log(startDate, endDate);
         const where = {
           status: status !== "all" ? status : undefined,
           userId: req.account.role === "user" ? req.account.id : undefined,
           createdAt: {
-            gte: dateFrom,
-            lte: dateTo,
+            gte: startDate,
+            lte: endDate,
           },
         };
 

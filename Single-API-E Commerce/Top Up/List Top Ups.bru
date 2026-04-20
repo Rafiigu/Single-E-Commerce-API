@@ -5,11 +5,17 @@ meta {
 }
 
 get {
-  url: http://localhost:5000/api/top-up
+  url: http://localhost:5000/api/top-up?dateFrom=2026-02-12T10:19:55.701&dateTo=2026-02-12T10:33:07.393Z
   body: none
   auth: inherit
 }
 
+params:query {
+  dateFrom: 2026-02-12T10:19:55.701
+  dateTo: 2026-02-12T10:33:07.393Z
+}
+
 settings {
   encodeUrl: true
+  timeout: 0
 }
