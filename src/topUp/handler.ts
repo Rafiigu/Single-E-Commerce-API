@@ -356,46 +356,44 @@ export const uploadTransferProofImageHandler =
     }
   };
 
-export const cancelTopUpHandler: HandlerWithDeps =
-  ({ prisma }) =>
-  async (req, res, next) => {
-    const { id } = req.account;
+export const cancelTopUpHandler: HandlerWithDeps = ({ prisma }) =>
+  withValidation(
+    {
+      paramsSchema: idTopUpParamsSchema,
+    },
+    async (req, res, next) => {
+      const { id } = req.params;
 
-    try {
-      const existingTopUp = await prisma.topUp.findFirst({
-        where: { userId: id },
-      });
+      try {
+        const existingTopUp = await prisma.topUp.findFirst({
+          where: { id },
+        });
+        if (!existingTopUp) {
+          throw createErrorWithMessage(
+            StatusCodes.BAD_REQUEST,
+            "Top Up dengan ID tersebut tidak ditemukan.",
+          );
+        }
+        if (existingTopUp.status !== "requested") {
+          throw createErrorWithMessage(
+            StatusCodes.BAD_REQUEST,
+            "Top Up tidak dapat di-cancel",
+          );
+        }
 
-      if (!existingTopUp) {
-        throw createErrorWithMessage(
-          StatusCodes.BAD_REQUEST,
-          "Top Up dengan ID tersebut tidak ditemukan.",
-        );
+        const updatedTopUp = await prisma.topUp.update({
+          where: { id },
+          data: {
+            status: "cancelled",
+          },
+        });
+
+        res.json({
+          success: true,
+          data: updatedTopUp,
+        });
+      } catch (error) {
+        next(error);
       }
-
-      if (existingTopUp.status !== "requested") {
-        throw createErrorWithMessage(
-          StatusCodes.BAD_REQUEST,
-          "Top Up tidak dapat di-cancel",
-        );
-      }
-
-      await prisma.topUp.updateMany({
-        where: { userId: id },
-        data: {
-          status: "cancelled",
-        },
-      });
-
-      const updatedTopUp = await prisma.topUp.findMany({
-        where: { userId: id },
-      });
-
-      res.json({
-        success: true,
-        data: updatedTopUp,
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
+    },
+  );
