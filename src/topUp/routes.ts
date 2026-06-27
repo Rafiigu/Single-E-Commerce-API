@@ -37,7 +37,7 @@ export const setUpTopUpRoutes: SetupRoutes = (app, { prisma }) => {
     rejectTopUpHandler({ prisma }),
   );
   router.post(
-    "/:id/upload-transfer-proof/image",
+    "/upload-transfer-proof/image",
     authMiddleware(["user"]),
     uploadTransferProofImageHandler(),
   );
