@@ -15,6 +15,7 @@ import { setUpWishlistRoutes } from "./wishlist/routes";
 import { setupUserRoutes } from "./user/routes";
 import { setUpCartRoutes } from "./cart/routes";
 import { setUpTopUpRoutes } from "./topUp/routes";
+import { setUpTransactionRoutes } from "./transaction/routes";
 
 const PORT = ENV.PORT;
 const app = express();
@@ -37,6 +38,7 @@ setUpWishlistRoutes(router, { prisma });
 setupUserRoutes(router, { prisma });
 setUpCartRoutes(router, { prisma });
 setUpTopUpRoutes(router, { prisma });
+setUpTransactionRoutes(router, { prisma });
 
 app.use("/api", router);
 

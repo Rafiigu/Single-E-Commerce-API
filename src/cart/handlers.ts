@@ -132,6 +132,12 @@ export const listCartItemsHandler: HandlerWithDeps = ({ prisma }) =>
                 name: true,
                 price: true,
                 productImages: true,
+                category: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
