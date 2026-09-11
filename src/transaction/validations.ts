@@ -52,6 +52,15 @@ export const createTransactionBodySchema = z.object({
     .min(1000, {
       message: "Total harga harus lebih dari 1000!",
     }),
+  receiverName: z.string({
+    required_error: "Nama penerima wajib ada.",
+  }),
+  receiverPhoneNumber: z.string({
+    required_error: "Nomor telepon penerima wajib ada.",
+  }),
+  receiverAddress: z.string({
+    required_error: "Alamat penerima wajib ada.",
+  }),
 });
 
 export const idTransactionParamsSchema = z.object({

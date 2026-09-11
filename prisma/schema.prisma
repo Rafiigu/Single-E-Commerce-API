@@ -150,14 +150,31 @@ model TopUp {
 }
 
 model Transaction {
-  id                 String               @id @default(uuid())
-  userId             String
-  user               User                 @relation(fields: [userId], references: [id])
-  total              Int
-  status             String
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  transactionDetails TransactionDetails[]
+  id                  String               @id @default(uuid())
+  userId              String
+  user                User                 @relation(fields: [userId], references: [id])
+  receiverName        String
+  receiverPhoneNumber String
+  receiverAddress     String
+  total               Int
+  status              String
+  cancellationReason  String?
+  deliveredAt         DateTime?
+  logisticVendorId    String?
+  logisticVendor      LogisticVendor?      @relation(fields: [logisticVendorId], references: [id])
+  processedAt         DateTime?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  transactionDetails  TransactionDetails[]
+}
+
+model LogisticVendor {
+  id           String        @id @default(uuid())
+  name         String
+  status       String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  transactions Transaction[]
 }
 
 model TransactionDetails {

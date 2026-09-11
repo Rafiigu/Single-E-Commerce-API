@@ -59,8 +59,16 @@ export const createTransactionHandler: HandlerWithDeps = ({ prisma }) =>
     { bodySchema: createTransactionBodySchema },
     async (req, res, next) => {
       const userId = req.account.id;
-      const { total } = req.body;
+      const { total, receiverName, receiverPhoneNumber, receiverAddress } =
+        req.body;
       try {
+        console.log(
+          "Test",
+          total,
+          receiverName,
+          receiverPhoneNumber,
+          receiverAddress,
+        );
         const existingUser = await prisma.user.findUnique({
           where: { id: userId },
         });
@@ -88,8 +96,13 @@ export const createTransactionHandler: HandlerWithDeps = ({ prisma }) =>
             userId: userId,
             total: total,
             status: "pending",
+            receiverName: receiverName,
+            receiverPhoneNumber: receiverPhoneNumber,
+            receiverAddress: receiverAddress,
           },
         });
+
+        console.log("Transaction created:", transaction);
 
         res.json({
           success: true,
