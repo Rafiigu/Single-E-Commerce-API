@@ -39,6 +39,14 @@ export const listTransactionsHandler: HandlerWithDeps = ({ prisma }) =>
             : {}),
           where,
           orderBy: { createdAt: "desc" },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
         });
 
         const total = await prisma.transaction.count({ where });
@@ -62,21 +70,15 @@ export const createTransactionHandler: HandlerWithDeps = ({ prisma }) =>
       const { total, receiverName, receiverPhoneNumber, receiverAddress } =
         req.body;
       try {
-        console.log(
-          "Test",
-          total,
-          receiverName,
-          receiverPhoneNumber,
-          receiverAddress,
-        );
         const existingUser = await prisma.user.findUnique({
           where: { id: userId },
         });
 
         if (!existingUser) {
-          throw createFieldError(StatusCodes.NOT_FOUND, {
-            userId: "User tidak ditemukan!",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.NOT_FOUND,
+            "User tidak ditemukan!",
+          );
         }
 
         const existingTransaction = await prisma.transaction.findFirst({
@@ -86,9 +88,10 @@ export const createTransactionHandler: HandlerWithDeps = ({ prisma }) =>
           },
         });
         if (existingTransaction) {
-          throw createFieldError(StatusCodes.BAD_REQUEST, {
-            transaction: "Transaksi pending sudah ada!",
-          });
+          throw createErrorWithMessage(
+            StatusCodes.BAD_REQUEST,
+            "Transaksi pending sudah ada.",
+          );
         }
 
         const transaction = await prisma.transaction.create({
@@ -102,7 +105,14 @@ export const createTransactionHandler: HandlerWithDeps = ({ prisma }) =>
           },
         });
 
-        console.log("Transaction created:", transaction);
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            balance: {
+              decrement: total,
+            },
+          },
+        });
 
         res.json({
           success: true,
@@ -171,7 +181,7 @@ export const TransactionStatusCancelHandler: HandlerWithDeps = ({ prisma }) =>
           where: { id: req.params.id },
           data: {
             status: "cancelled",
-            cancellationReason: req.body.reason,
+            cancellationReason: req.body.cancellationReason,
           },
         });
         res.json({

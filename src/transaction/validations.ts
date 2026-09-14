@@ -68,7 +68,7 @@ export const idTransactionParamsSchema = z.object({
 });
 
 export const cancelTransactionBodySchema = z.object({
-  reason: z.string({
+  cancellationReason: z.string({
     required_error: "Alasan pembatalan wajib ada.",
   }),
 });

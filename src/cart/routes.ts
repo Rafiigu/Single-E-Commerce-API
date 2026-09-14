@@ -2,9 +2,10 @@ import { SetupRoutes } from "../types";
 import express from "express";
 import {
   createCartItemHandler,
+  deleteCartItemHandler,
   deleteCartItemsHandler,
   listCartItemsHandler,
-} from "./handler";
+} from "./handlers";
 import { authMiddleware } from "../auth/middleware";
 
 export const setUpCartRoutes: SetupRoutes = (app, { prisma }) => {
@@ -12,9 +13,14 @@ export const setUpCartRoutes: SetupRoutes = (app, { prisma }) => {
 
   router.post("/", authMiddleware(["user"]), createCartItemHandler({ prisma }));
   router.delete(
-    "/:id",
+    "/many",
     authMiddleware(["user"]),
     deleteCartItemsHandler({ prisma }),
+  );
+  router.delete(
+    "/:id",
+    authMiddleware(["user"]),
+    deleteCartItemHandler({ prisma }),
   );
   router.get("/", authMiddleware(["user"]), listCartItemsHandler({ prisma }));
 

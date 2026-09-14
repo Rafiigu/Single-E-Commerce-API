@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import { createFieldError } from "../error";
+import { createErrorWithMessage, createFieldError } from "../error";
 import { HandlerWithDeps } from "../types";
 import { withValidation } from "../validation";
 import {
@@ -70,7 +70,35 @@ export const createCartItemHandler: HandlerWithDeps = ({ prisma }) =>
     },
   );
 
-export const deleteCartItemsHandler: HandlerWithDeps = ({ prisma }) =>
+export const deleteCartItemsHandler: HandlerWithDeps =
+  ({ prisma }) =>
+  async (req, res, next) => {
+    const userId = req.account.id;
+    try {
+      const userCartItems = await prisma.cartItem.findMany({
+        where: { userId },
+      });
+
+      if (!userCartItems || userCartItems.length === 0) {
+        throw createErrorWithMessage(
+          StatusCodes.NOT_FOUND,
+          "Item keranjang tidak ditemukan!",
+        );
+      }
+
+      await prisma.cartItem.deleteMany({
+        where: { userId },
+      });
+      res.json({
+        success: true,
+        data: null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+export const deleteCartItemHandler: HandlerWithDeps = ({ prisma }) =>
   withValidation(
     {
       paramsSchema: idCartParamsSchema,
